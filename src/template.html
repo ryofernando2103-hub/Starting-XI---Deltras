@@ -546,7 +546,10 @@ function renderHead(){
   var xs=S.xi.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);}), n=xs.length;
   var fn=$('#fname'), fs=S.rows.join('-');
   if(fn.textContent!==fs){ fn.textContent=fs; if(booted&&!RM){ fn.classList.remove('swap'); void fn.offsetWidth; fn.classList.add('swap'); } }
-  tween($('#sAge'),squadAge(),function(v){return nf.format(v);});
+  var ae=$('#sAge'), av=squadAge();
+  if(view!=='pitch'||av==null){ cancelAnimationFrame(ae._raf); ae.textContent='–'; ae._v=null; }
+  else if(ae._v==null){ ae.textContent=nf.format(av); ae._v=av; ae._init=1; }
+  else tween(ae,av,function(v){return nf.format(v);});
   tween($('#sXI span'),n,function(v){return Math.round(v);});
   var tp=teamPoints(), pe=$('#sPts'); tween(pe.firstChild,tp,function(v){return Math.round(v);}); pe.classList.toggle('d3',String(Math.abs(tp)).length>=3||tp<0);
   var tot=totalPoints(); $('#sGames').textContent=tot.n?tot.n+' laga':'Belum ada laga';
