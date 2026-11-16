@@ -77,11 +77,9 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .textbtn{font-weight:600;color:var(--white);text-decoration:underline;text-underline-offset:3px}
 
 /* lapangan */
-.board{display:flex;align-items:center;height:30px;background:var(--ink);color:var(--white);overflow:hidden}
-.track{display:flex;flex:none;align-items:center;gap:30px;padding-right:30px;white-space:nowrap}
-.track span{text-transform:uppercase;font:700 12px/1 var(--num);letter-spacing:.24em}
-.track i{font:italic 500 13px/1 var(--body);color:rgba(255,255,255,.7)}
-.track b{width:5px;height:5px;border-radius:50%;background:var(--red);flex:none}
+.board{display:flex;justify-content:space-between;align-items:center;height:30px;background:var(--ink);color:var(--white)}
+.board span{text-transform:uppercase;font:700 12px/1 var(--num);letter-spacing:.24em}
+.board i{font:italic 500 13px/1 var(--body);color:rgba(255,255,255,.7)}
 .pitch{position:relative;container-type:inline-size;overflow:hidden;user-select:none;-webkit-user-select:none;background:var(--grass-a)}
 .pitch svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .slot{position:absolute;transform:translate(-50%,-50%);width:17.5cqw;--u:1cqw}
@@ -212,44 +210,23 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
 :root{--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.56,.64,1)}
 .slot{transition:left .6s var(--ease),top .6s var(--ease)}
 .pitch.dragging .slot{transition:none}
-.card,.btn,.sbtn,.ubah,.sq,.fchip,.act,.row{transition:transform .16s var(--ease)}
+.card,.btn,.sbtn,.ubah,.sq,.fchip{transition:transform .16s var(--ease)}
 .card:active,.btn:active,.sbtn:active,.ubah:active,.sq:active,.fchip:active{transform:scale(.95)}
-.row:active{transform:scale(.985)}
 .xibar i{transition:background-color .3s ease,transform .3s var(--spring);transition-delay:calc(var(--i)*35ms)}
 .xibar i.on{transform:scaleY(1.35)}
 @keyframes rise{from{opacity:0;transform:translateY(16px)}}
 @keyframes cardIn{from{opacity:0;transform:translateY(22px) scale(.9)}}
 @keyframes pop{0%{transform:scale(.82);opacity:.3}55%{transform:scale(1.06);opacity:1}100%{transform:none}}
 @keyframes numIn{from{opacity:0;transform:translateY(40%)}}
-@keyframes viewIn{from{opacity:0;transform:translateY(10px)}}
-@keyframes grow{from{transform:scaleX(0)}}
-@keyframes fade{from{opacity:0}}
-@keyframes up{from{transform:translateY(40px);opacity:.4}}
-@keyframes marquee{to{transform:translateX(-100%)}}
-@keyframes ghostIn{from{opacity:0;transform:translateX(-30px)}}
-@keyframes pulse{50%{outline-color:rgba(255,255,255,.35)}}
 @media (prefers-reduced-motion:no-preference){
+  /* 1. saat halaman dibuka */
   .meta,.hp,.hf,.xi,.fctl,.viewtabs{animation:rise .7s var(--ease) both}
   .hp{animation-delay:.08s}.xi{animation-delay:.16s}.hf{animation-delay:.22s}.fctl{animation-delay:.3s}.viewtabs{animation-delay:.36s}
   .pitch.intro .slot .card{animation:cardIn .65s var(--ease) both;animation-delay:calc(.35s + var(--i)*55ms)}
-  .card.pop{animation:pop .5s var(--ease)}
+  /* 2. saat ganti formasi */
   .fbig.swap{animation:numIn .45s var(--ease)}
-  .track{animation:marquee 26s linear infinite}
-  #vPitch:not([hidden]),#vList:not([hidden]){animation:viewIn .4s var(--ease)}
-  .viewtabs button[aria-selected="true"]::after,.ptab[aria-selected="true"]::after{transform-origin:left;animation:grow .35s var(--ease)}
-  .rows.anim .row{animation:rise .45s var(--ease) both;animation-delay:calc(var(--i)*28ms)}
-  .card.swap{animation:pulse 1s ease-in-out infinite}
-  .sheet{animation:fade .2s ease}
-  .sheet-card{animation:up .32s var(--ease)}
-  .sheetbody > *{animation:rise .45s var(--ease) both}
-  .sheetbody > :nth-child(2){animation-delay:.05s}.sheetbody > :nth-child(3){animation-delay:.1s}.sheetbody > :nth-child(4){animation-delay:.15s}.sheetbody > :nth-child(n+5){animation-delay:.2s}
-  .acts .act{animation:rise .4s var(--ease) both;animation-delay:calc(.12s + var(--i)*40ms)}
-  .prof .ghost{animation:ghostIn .7s var(--ease) both .1s}
-  .prof .shot{animation:rise .6s var(--ease) both .05s}
-  .float{animation:rise .3s var(--ease)}
-  @supports (animation-timeline:view()){
-    .reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
-  }
+  /* 3. saat memasukkan atau mengganti pemain */
+  .card.pop{animation:pop .5s var(--ease)}
 }
 </style>
 
@@ -284,20 +261,20 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
   </div></header>
 
   <div id="vPitch">
-    <div class="board" aria-hidden="true"><div class="track"><span>Deltras FC</span><b></b><i>#Identitasedarjo</i><b></b><span>The Lobster</span><b></b><i>Seputar Deltras</i><b></b></div><div class="track"><span>Deltras FC</span><b></b><i>#Identitasedarjo</i><b></b><span>The Lobster</span><b></b><i>Seputar Deltras</i><b></b></div></div>
+    <div class="board inner" aria-hidden="true"><span>Deltras FC</span><i>#Identitasedarjo</i></div>
     <div class="pitch" id="pitch"><div id="pitchBg"></div><div id="slots"></div></div>
     <div class="inner">
       <p class="hint" id="hint" aria-live="polite"></p>
       <section class="sec" aria-labelledby="hSubs">
-        <div class="sechead reveal"><h2 id="hSubs">Cadangan</h2><span id="subCount"></span></div>
+        <div class="sechead"><h2 id="hSubs">Cadangan</h2><span id="subCount"></span></div>
         <div class="subs" id="subs"></div>
       </section>
       <section class="sec" aria-labelledby="hShare">
-        <div class="sechead reveal"><h2 id="hShare">Bagikan</h2></div>
-        <label class="field reveal" for="coach"><span class="lab">Nama Pelatih</span>
+        <div class="sechead"><h2 id="hShare">Bagikan</h2></div>
+        <label class="field" for="coach"><span class="lab">Nama Pelatih</span>
           <input id="coach" type="text" maxlength="28" placeholder="Nama Kamu" autocomplete="off">
         </label>
-        <div class="btns reveal">
+        <div class="btns">
           <button class="btn primary" data-act="export">Share ke Sosmed-mu!</button>
           <button class="btn ghost" data-act="clear">Kosongkan Susunan</button>
         </div>
@@ -474,7 +451,7 @@ function renderPitch(){
   });
 }
 function renderSubs(){
-  if(!subEls.length){ for(var k=0;k<7;k++){ var d=document.createElement('div'); d.className='sub reveal'; $('#subs').appendChild(d); subEls.push(d); } }
+  if(!subEls.length){ for(var k=0;k<7;k++){ var d=document.createElement('div'); d.className='sub'; $('#subs').appendChild(d); subEls.push(d); } }
   S.bench.forEach(function(id,i){ patch(subEls[i],cardHTML('b',i,null),id); });
   var n=S.bench.filter(function(x){return x!=null;}).length;
   $('#subCount').innerHTML='<em>'+n+'</em>/7';
@@ -506,28 +483,26 @@ function renderHead(){
 }
 
 /* daftar pemain (tampilan Daftar dan lembar pilih) */
-function animRows(el){ el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); clearTimeout(el._t); el._t=setTimeout(function(){el.classList.remove('anim');},900); }
-function cnt(t){ return t==='ALL'?P.length:P.filter(function(p){return p.pos===t;}).length; }
+function cnt(t,hide){ return P.filter(function(p){ return (t==='ALL'||p.pos===t)&&!(hide&&loc(p.id)); }).length; }
 function makeList(root,ls,pre){
   root.innerHTML='<div class="ctl"><div class="ptabs" role="tablist" aria-label="Filter posisi">'+
-    ['ALL','GK','DF','MF','FW'].map(function(t){return '<button class="ptab" role="tab" data-tab="'+t+'">'+(t==='ALL'?'Semua':t)+'<span>'+cnt(t)+'</span></button>';}).join('')+
+    ['ALL','GK','DF','MF','FW'].map(function(t){return '<button class="ptab" role="tab" data-tab="'+t+'">'+(t==='ALL'?'Semua':t)+'<span>'+cnt(t,ls.hideUsed)+'</span></button>';}).join('')+
     '</div><div class="ctl2"><input type="search" id="'+pre+'-q" placeholder="Cari nama atau nomor" aria-label="Cari pemain" autocomplete="off">'+
     '<select id="'+pre+'-sort" aria-label="Urutkan"><option value="num">Nomor</option><option value="age">Termuda</option><option value="name">Nama A–Z</option></select></div></div><div class="rows"></div>';
   var rowsEl=root.querySelector('.rows');
   function refresh(){
     root.querySelectorAll('.ptab').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.tab===ls.tab));});
     var q=ls.q.trim().toLowerCase();
-    var list=P.filter(function(p){ return (ls.tab==='ALL'||p.pos===ls.tab)&&(!q||p.name.toLowerCase().indexOf(q)>=0||String(p.num)===q); });
+    var list=P.filter(function(p){ return !(ls.hideUsed&&loc(p.id))&&(ls.tab==='ALL'||p.pos===ls.tab)&&(!q||p.name.toLowerCase().indexOf(q)>=0||String(p.num)===q); });
     list.sort(function(a,b){return ls.sort==='age'?(a.age-b.age||a.num-b.num):ls.sort==='name'?a.name.localeCompare(b.name):a.num-b.num;});
     rowsEl.innerHTML=list.length?list.map(function(p,idx){
       var l=loc(p.id), st=l?(l.z==='xi'?'XI':'Cad'):'';
       return '<div class="row r-'+p.pos+'" style="--i:'+Math.min(idx,14)+'" data-pid="'+p.id+'" role="button" tabindex="0"><span class="no">'+p.num+'</span><span class="ph">'+picInner(p)+'</span>'+
         '<span class="who"><b>'+esc(p.name)+'</b><small>'+p.age+' tahun · '+esc(p.country)+'</small></span>'+
         '<span class="tag"><span class="pp">'+p.pos+'</span>'+(st?'<span class="st">'+st+'</span>':'')+'</span></div>';
-    }).join(''):'<div class="empty-list">Tidak ada pemain yang cocok.</div>';
+    }).join(''):'<div class="empty-list">'+(ls.hideUsed&&!q?'Semua pemain '+(ls.tab==='ALL'?'':'di posisi ini ')+'sudah dipilih.':'Tidak ada pemain yang cocok.')+'</div>';
   }
-  root.addEventListener('click',function(e){var t=e.target.closest('.ptab'); if(t){ls.tab=t.dataset.tab;animRows(rowsEl);refresh();}});
-  animRows(rowsEl);
+  root.addEventListener('click',function(e){var t=e.target.closest('.ptab'); if(t){ls.tab=t.dataset.tab;refresh();}});
   root.querySelector('input').addEventListener('input',function(e){ls.q=e.target.value;refresh();});
   root.querySelector('select').addEventListener('change',function(e){ls.sort=e.target.value;refresh();});
   root.querySelector('select').value=ls.sort;
@@ -547,7 +522,7 @@ function openSheet(kind,title,html){ sheetKind=kind; $('#sheetTitle').textConten
 function closeSheet(){ sheetKind=null; pickList=null; target=null; $('#sheet').hidden=true; }
 function openPick(t,role){
   openSheet('pick','Pilih '+(role?POS[role]:'Pemain'),'<div id="pickRoot"></div>');
-  target=t; pickList=makeList($('#pickRoot'),{tab:role||'ALL',q:'',sort:'num'},'pk');
+  target=t; pickList=makeList($('#pickRoot'),{tab:role||'ALL',q:'',sort:'num',hideUsed:true},'pk');
 }
 function openPlayer(z,i){
   var p=byId.get(get(z,i)); if(!p) return;
@@ -659,7 +634,7 @@ var suppress=false;
 document.addEventListener('click',function(e){
   if(suppress){ suppress=false; return; }
   var a=e.target.closest('[data-act]'); if(a){ doAct(a.dataset.act); return; }
-  var v=e.target.closest('[data-view]'); if(v){ var nv=v.dataset.view; if(nv!==view&&nv==='list') animRows($('#squadRoot .rows')); view=nv; render(); return; }
+  var v=e.target.closest('[data-view]'); if(v){ view=v.dataset.view; render(); return; }
   var f=e.target.closest('[data-form]'); if(f){ mutate(function(){setRows(PRESETS.find(function(x){return x[0]===f.dataset.form;})[1]);}); return; }
   var s=e.target.closest('.card[data-z]'); if(s){ tapSlot(s.dataset.z,+s.dataset.i); return; }
   var r=e.target.closest('.row[data-pid]'); if(r){ tapRow(+r.dataset.pid,!!r.closest('#sheet')); return; }
