@@ -429,6 +429,8 @@ function playerMatchPts(id,mt){ var p=byId.get(id), st=mt&&mt.pemain&&mt.pemain[
 function snapPoints(snap,date){ var mt=statsFor(date); if(!mt) return null; return snap.xi.reduce(function(a,id){ return id==null?a:a+playerMatchPts(id,mt)*(snap.cap===id?2:1); },0); }
 function totalPoints(){ var t=0,n=0; Object.keys(S.hist).forEach(function(d){ var v=snapPoints(S.hist[d],d); if(v!=null){ t+=v; n++; } }); return {t:t,n:n}; }
 function teamPoints(){ return totalPoints().t; }
+/* usia rata-rata seluruh skuad pilihan: starting XI + cadangan */
+function squadAge(){ var ps=S.xi.concat(S.bench).filter(function(x){return x!=null;}).map(function(x){return byId.get(x);}); return ps.length?ps.reduce(function(a,p){return a+p.age;},0)/ps.length:null; }
 /* jadwal & pencatatan susunan */
 function kickoffOf(f){ return new Date(f.tanggal+'T'+(f.jam||'19:00')+':00+07:00').getTime(); }
 function deadlineOf(f){ return kickoffOf(f)-2*3600e3; }
@@ -544,7 +546,7 @@ function renderHead(){
   var xs=S.xi.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);}), n=xs.length;
   var fn=$('#fname'), fs=S.rows.join('-');
   if(fn.textContent!==fs){ fn.textContent=fs; if(booted&&!RM){ fn.classList.remove('swap'); void fn.offsetWidth; fn.classList.add('swap'); } }
-  tween($('#sAge'),n?xs.reduce(function(a,p){return a+p.age;},0)/n:null,function(v){return nf.format(v);});
+  tween($('#sAge'),squadAge(),function(v){return nf.format(v);});
   tween($('#sXI span'),n,function(v){return Math.round(v);});
   var tp=teamPoints(), pe=$('#sPts'); tween(pe.firstChild,tp,function(v){return Math.round(v);}); pe.classList.toggle('d3',String(Math.abs(tp)).length>=3||tp<0);
   var tot=totalPoints(); $('#sGames').textContent=tot.n?tot.n+' laga':'Belum ada laga';
@@ -903,7 +905,7 @@ async function exportImage(){
   var pts=String(teamPoints()); g.fillStyle='#fff'; g.font='800 '+(pts.length>=3?132:150)+'px '+NUM; g.fillText(pts,M+30,hy+262,330);
   var pw2=Math.min(g.measureText(pts).width,330); g.fillStyle='rgba(255,255,255,.72)'; g.font='700 36px '+NUM; g.fillText('pts',M+40+pw2,hy+262);
   var sx=M+CW*.47, sw=CW*.53-34, sh=54, sg=10, sy0=hy+100;
-  [['Formasi',S.rows.join('-')],['Usia rata-rata',xs.length?nf.format(xs.reduce(function(a,p){return a+p.age;},0)/xs.length):'–'],['Kapten',cap?cap.short:'–']].forEach(function(r,i){
+  [['Formasi',S.rows.join('-')],['Usia rata-rata',squadAge()==null?'–':nf.format(squadAge())],['Kapten',cap?cap.short:'–']].forEach(function(r,i){
     var y=sy0+i*(sh+sg); g.fillStyle='rgba(0,0,0,.16)'; rr(g,sx,y,sw,sh,18); g.fill();
     g.textBaseline='middle'; g.fillStyle='rgba(255,255,255,.75)'; g.font='500 22px '+INTER; g.textAlign='left'; g.fillText(r[0],sx+20,y+sh/2+1);
     g.fillStyle='#fff'; g.font=(i===2?'700 30px ':'800 36px ')+(i===2?INTER:NUM); g.textAlign='right'; g.fillText(r[1],sx+sw-20,y+sh/2+2,sw*.55); g.textAlign='left'; g.textBaseline='alphabetic';
