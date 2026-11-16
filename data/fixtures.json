@@ -1,0 +1,164 @@
+[
+ {
+  "tanggal": "2026-09-13",
+  "jam": null,
+  "kandang": "psbs",
+  "tamu": "deltras",
+  "skor_kandang": 0,
+  "skor_tamu": 5,
+  "stadion": "Sriwedari"
+ },
+ {
+  "tanggal": "2026-09-20",
+  "jam": null,
+  "kandang": "deltras",
+  "tamu": "barito",
+  "skor_kandang": 3,
+  "skor_tamu": 2,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-09-27",
+  "jam": null,
+  "kandang": "rans",
+  "tamu": "deltras",
+  "skor_kandang": 1,
+  "skor_tamu": 2,
+  "stadion": "Kanjuruhan"
+ },
+ {
+  "tanggal": "2026-10-04",
+  "jam": null,
+  "kandang": "deltras",
+  "tamu": "persiba",
+  "skor_kandang": 2,
+  "skor_tamu": 0,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-10-11",
+  "jam": null,
+  "kandang": "persela",
+  "tamu": "deltras",
+  "skor_kandang": 1,
+  "skor_tamu": 1,
+  "stadion": "Surajaya"
+ },
+ {
+  "tanggal": "2026-10-18",
+  "jam": null,
+  "kandang": "deltras",
+  "tamu": "persis",
+  "skor_kandang": 3,
+  "skor_tamu": 3,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-10-24",
+  "jam": null,
+  "kandang": "kendal",
+  "tamu": "deltras",
+  "skor_kandang": 2,
+  "skor_tamu": 2,
+  "stadion": "Sriwedari"
+ },
+ {
+  "tanggal": "2026-10-31",
+  "jam": null,
+  "kandang": "deltras",
+  "tamu": "dered",
+  "skor_kandang": 0,
+  "skor_tamu": 2,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-11-07",
+  "jam": null,
+  "kandang": "persipura",
+  "tamu": "deltras",
+  "skor_kandang": 2,
+  "skor_tamu": 1,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-11-21",
+  "jam": "19:00",
+  "kandang": "deltras",
+  "tamu": "persela",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-11-28",
+  "jam": "19:00",
+  "kandang": "persis",
+  "tamu": "deltras",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Manahan"
+ },
+ {
+  "tanggal": "2026-12-06",
+  "jam": "15:30",
+  "kandang": "deltras",
+  "tamu": "persipura",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2026-12-12",
+  "jam": "19:00",
+  "kandang": "dered",
+  "tamu": "deltras",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora 10 November"
+ },
+ {
+  "tanggal": "2026-12-19",
+  "jam": "19:00",
+  "kandang": "deltras",
+  "tamu": "kendal",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2027-01-09",
+  "jam": "19:00",
+  "kandang": "persiba",
+  "tamu": "deltras",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Batakan"
+ },
+ {
+  "tanggal": "2027-01-16",
+  "jam": "19:00",
+  "kandang": "deltras",
+  "tamu": "rans",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2027-01-23",
+  "jam": "19:00",
+  "kandang": "deltras",
+  "tamu": "psbs",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora Delta"
+ },
+ {
+  "tanggal": "2027-01-31",
+  "jam": "15:30",
+  "kandang": "barito",
+  "tamu": "deltras",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "17 Mei Banjarmasin"
+ }
+]

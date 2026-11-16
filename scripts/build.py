@@ -26,14 +26,32 @@ def logo_uri():
     return 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 
+def team_logo_uri(path):
+    if path.suffix == '.svg':
+        return 'data:image/svg+xml;base64,' + base64.b64encode(path.read_bytes()).decode()
+    im = Image.open(path).convert('RGBA')
+    im = im.crop(im.getbbox())
+    im.thumbnail((160, 160), Image.LANCZOS)
+    buf = io.BytesIO()
+    im.save(buf, 'WEBP', quality=88, method=6)
+    return 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
+
+
 def main():
     tpl = (ROOT / 'src' / 'template.html').read_text(encoding='utf8')
     players = (ROOT / 'data' / 'players.json').read_text(encoding='utf8').strip()
     matches = json.loads((ROOT / 'data' / 'matches.json').read_text(encoding='utf8'))
+    fixtures = json.loads((ROOT / 'data' / 'fixtures.json').read_text(encoding='utf8'))
+    teams = json.loads((ROOT / 'data' / 'teams.json').read_text(encoding='utf8'))
+    teams = {k: {'nama': v['nama'], 'pendek': v['pendek'],
+                 'logo': team_logo_uri(ROOT / 'assets' / 'teams' / v['logo'])} for k, v in teams.items()}
+    compact = lambda o: json.dumps(o, ensure_ascii=False, separators=(',', ':'))
     html = (tpl.replace('__PLAYERS__', players)
+               .replace('__FIXTURES__', compact(fixtures))
+               .replace('__TEAMS__', compact(teams))
                .replace('__LOGO__', logo_uri())
                .replace('__MATCHES__', json.dumps(matches, ensure_ascii=False, separators=(',', ':'))))
-    for token in ('__PLAYERS__', '__LOGO__', '__MATCHES__'):
+    for token in ('__PLAYERS__', '__LOGO__', '__MATCHES__', '__FIXTURES__', '__TEAMS__'):
         assert token not in html, token
     out = ROOT / 'dist' / 'index.html'
     out.write_text(html, encoding='utf8')

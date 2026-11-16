@@ -1,0 +1,53 @@
+{
+ "deltras": {
+  "nama": "Deltras FC",
+  "logo": "deltras.png",
+  "pendek": "Deltras"
+ },
+ "psbs": {
+  "nama": "PSBS Biak",
+  "logo": "psbs.png",
+  "pendek": "PSBS"
+ },
+ "barito": {
+  "nama": "Barito Putera",
+  "logo": "barito.svg",
+  "pendek": "Barito"
+ },
+ "rans": {
+  "nama": "RANS Nusantara",
+  "logo": "rans.png",
+  "sumber_logo": "ileague.id (sementara)",
+  "pendek": "RANS"
+ },
+ "persiba": {
+  "nama": "Persiba Balikpapan",
+  "logo": "persiba.png",
+  "pendek": "Persiba"
+ },
+ "persela": {
+  "nama": "Persela Lamongan",
+  "logo": "persela.png",
+  "pendek": "Persela"
+ },
+ "persis": {
+  "nama": "Persis Solo",
+  "logo": "persis.svg",
+  "pendek": "Persis"
+ },
+ "kendal": {
+  "nama": "Kendal Tornado",
+  "logo": "kendal.png",
+  "pendek": "Kendal"
+ },
+ "dered": {
+  "nama": "De Red FC",
+  "logo": "dered.webp",
+  "pendek": "De Red"
+ },
+ "persipura": {
+  "nama": "Persipura Jayapura",
+  "logo": "persipura.png",
+  "pendek": "Persipura"
+ }
+}

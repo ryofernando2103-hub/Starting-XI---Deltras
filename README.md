@@ -14,9 +14,12 @@ Halaman ini berupa satu file HTML mandiri. Semua data, foto, dan logo tertanam d
 | `src/template.html` | Kode halaman (HTML, CSS, JS) dengan placeholder `__PLAYERS__`, `__LOGO__`, `__MATCHES__` |
 | `data/squad_source.json` | Data skuad mentah: nama dan posisi dari deltrasfc.com, usia dan negara dari ileague.id |
 | `data/players.json` | Data pemain siap pakai beserta foto (dibuat oleh `prep_players.py`) |
+| `data/fixtures.json` | Jadwal dan hasil laga Deltras (dari ileague.id) |
+| `data/teams.json` | Nama tim dan file logo |
 | `data/matches.json` | Statistik per laga untuk menghitung poin |
 | `assets/photos/` | Foto asli pemain per nomor punggung |
 | `assets/logo/` | Logo Seputar Deltras |
+| `assets/teams/` | Logo tim peserta (RANS sementara dari ileague.id) |
 | `scripts/prep_players.py` | Membuat `data/players.json` (nama pendek, koreksi nama, kompres foto) |
 | `scripts/build.py` | Merakit `dist/index.html` |
 | `public/index.html` | Hasil akhir untuk website (Vercel) |
@@ -33,14 +36,14 @@ python3 scripts/build.py
 
 ## Menambah poin dari laga
 
-Tambahkan satu objek per laga ke `data/matches.json`, lalu jalankan `build.py`. Kunci `pemain` adalah nomor punggung. Pemain yang tidak bermain tidak perlu ditulis.
+1. Isi skor laga di `data/fixtures.json` (`skor_kandang`, `skor_tamu`) dan kosongkan `jam` menjadi `null`.
+2. Tambahkan statistik laga ke `data/matches.json`. Kunci `tanggal` harus sama dengan tanggal di `fixtures.json`, dan kunci `pemain` adalah nomor punggung. Pemain yang tidak bermain tidak perlu ditulis.
+3. Jalankan `build.py`.
 
 ```json
 [
   {
-    "pekan": 12,
-    "lawan": "Persipura",
-    "skor": "2-1",
+    "tanggal": "2026-11-21",
     "kebobolan": 1,
     "pemain": {
       "10": {"m": 90, "g": 2},
@@ -77,7 +80,9 @@ Tambahkan satu objek per laga ke `data/matches.json`, lalu jalankan `build.py`. 
 | Kartu kuning / merah | −1 / −3 |
 | Gol bunuh diri | −2 |
 
-Total poin tim adalah jumlah poin 11 pemain starting XI, dan poin kapten dihitung dua kali. Cadangan tidak dihitung.
+Poin sebuah laga dihitung dari susunan yang **tercatat saat deadline** (2 jam sebelum kick-off): jumlah poin 11 pemain starting XI, dan poin kapten dihitung dua kali. Cadangan tidak dihitung. Total poin adalah jumlah poin semua laga.
+
+Susunan tercatat di browser pengguna saat halaman dibuka setelah deadline lewat. Laga sebelum pengguna pertama kali membuka halaman ditandai "Tidak ikut".
 
 ## Catatan data
 
