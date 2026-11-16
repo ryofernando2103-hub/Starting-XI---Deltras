@@ -179,11 +179,26 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
 .pstats div + div{padding-left:14px;border-left:1px solid var(--hair)}
 .pstats b{font:800 34px/.9 var(--num);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pstats .lab{color:var(--mute)}
-.acts{display:grid}
-.act{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--hair);text-align:left;font:700 21px/1 var(--num);letter-spacing:.005em;color:var(--fg)}
-.act em{font:500 13px/1 var(--body);font-style:normal;letter-spacing:0;color:var(--mute)}
-.act.on em{color:var(--white);background:var(--ink);padding:5px 8px;border-radius:7px}
-.act.danger{color:var(--red)}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.role{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--hair);border-radius:16px;background:var(--field);text-align:left;color:var(--fg);transition:transform .16s var(--ease),background-color .2s,border-color .2s}
+.role:active{transform:scale(.96)}
+.role .bdg{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1.5px solid var(--hair);font:800 22px/1 var(--num);color:var(--fg)}
+.role b{display:block;font:700 19px/1.05 var(--num)}
+.role small{display:block;margin-top:3px;font:500 12.5px/1.2 var(--body);color:var(--mute)}
+.role.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.role.on .bdg{background:#F5B700;border-color:#F5B700;color:var(--ink)}
+.role.on small{color:rgba(255,255,255,.65)}
+.acts{display:grid;gap:6px}
+.act{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 10px 8px 8px;border-radius:16px;text-align:left;color:var(--fg);transition:transform .16s var(--ease),background-color .2s}
+.act:active{transform:scale(.97);background:var(--field)}
+.act .ic{width:44px;height:44px;border-radius:12px;background:var(--field);display:grid;place-items:center;color:var(--fg)}
+.act .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.act b{display:block;font:700 20px/1.05 var(--num)}
+.act small{display:block;margin-top:3px;font:500 12.5px/1.2 var(--body);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act .chev{font:700 22px/1 var(--num);color:var(--mute)}
+.danger{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border:1.5px solid var(--red);border-radius:14px;color:var(--red);font:700 19px/1 var(--num);transition:transform .16s var(--ease)}
+.danger:active{transform:scale(.97);background:rgba(180,27,22,.06)}
+.danger svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 /* formasi */
 .fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .fchip{padding:14px 6px 12px;border:1px solid var(--hair);border-radius:12px;background:var(--field);font:800 24px/1 var(--num);color:var(--fg)}
@@ -527,19 +542,25 @@ function openPick(t,role){
 function openPlayer(z,i){
   var p=byId.get(get(z,i)); if(!p) return;
   var isCap=S.cap===p.id, isVice=S.vice===p.id;
-  var ai=0; function act(a,label,state,cls){ return '<button class="act'+(cls?' '+cls:'')+'" style="--i:'+(ai++)+'" data-act="'+a+'"><span>'+label+'</span><em>'+state+'</em></button>'; }
+  var IC={
+    swap:'<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
+    replace:'<path d="M20 11a8 8 0 0 0-14.9-4M4 4v3h3M4 13a8 8 0 0 0 14.9 4M20 20v-3h-3"/>',
+    out:'<path d="M12 4v12M6 10l6 6 6-6M5 20h14"/>',
+    in:'<path d="M12 20V8M6 14l6-6 6 6M5 4h14"/>'
+  };
+  function act(a,label,sub,ic){ return '<button class="act" data-act="'+a+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+IC[ic]+'</svg></span><span><b>'+label+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>'; }
+  function role(a,letter,label,on){ return '<button class="role'+(on?' on':'')+'" data-act="'+a+'" aria-pressed="'+on+'"><span class="bdg">'+letter+'</span><span><b>'+label+'</b><small>'+(on?'Aktif':(letter==='C'?'Poin ×2':'Jika kapten absen'))+'</small></span></button>'; }
   openSheet('player',z==='xi'?'Starting XI':'Cadangan',
     '<div class="prof"><span class="ghost">'+p.num+'</span><span class="shot">'+(p.photo?'<img src="'+p.photo+'" alt="">':'<span class="ini">'+esc(initials(p))+'</span>')+'</span>'+
       '<div class="nm"><span class="lab">'+POS[p.pos]+' · '+esc(p.country)+'</span><b>'+esc(p.name)+'</b></div></div>'+
     '<div class="pstats"><div><b>'+p.num+'</b><span class="lab">Nomor</span></div><div><b>'+p.age+'</b><span class="lab">Usia</span></div><div><b>'+PTS[p.id]+'</b><span class="lab">Poin</span></div></div>'+
+    '<div class="roles">'+role('cap','C','Kapten',isCap)+role('vice','V','Wakil Kapten',isVice)+'</div>'+
     '<div class="acts">'+
-      act('cap','Kapten',isCap?'Aktif':'Pilih',isCap?'on':'')+
-      act('vice','Wakil Kapten',isVice?'Aktif':'Pilih',isVice?'on':'')+
-      act('swap','Tukar Posisi','›')+
-      act('replace','Ganti Pemain','›')+
-      act('move',z==='xi'?'Pindah ke Cadangan':'Masuk Starting XI','›')+
-      act('remove','Keluarkan','','danger')+
-    '</div>');
+      act('swap','Tukar Posisi','Tukar dengan kartu lain','swap')+
+      act('replace','Ganti Pemain','Pilih pemain lain untuk slot ini','replace')+
+      (z==='xi'?act('move','Pindah ke Cadangan','Masuk ke slot cadangan kosong','out'):act('move','Masuk Starting XI','Isi slot starting XI kosong','in'))+
+    '</div>'+
+    '<button class="danger" data-act="remove"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>Keluarkan dari Susunan</button>');
   target={z:z,i:i};
 }
 function stepper(label,k,v,canDown,canUp){
