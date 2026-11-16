@@ -77,8 +77,11 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .textbtn{font-weight:600;color:var(--white);text-decoration:underline;text-underline-offset:3px}
 
 /* lapangan */
-.board{text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;height:30px;background:var(--ink);font:700 12px/1 var(--num);letter-spacing:.24em;color:var(--white)}
-.board span:last-child{color:rgba(255,255,255,.7);text-transform:none;letter-spacing:.01em;font:italic 500 13px/1 var(--body)}
+.board{display:flex;align-items:center;height:30px;background:var(--ink);color:var(--white);overflow:hidden}
+.track{display:flex;flex:none;align-items:center;gap:30px;padding-right:30px;white-space:nowrap}
+.track span{text-transform:uppercase;font:700 12px/1 var(--num);letter-spacing:.24em}
+.track i{font:italic 500 13px/1 var(--body);color:rgba(255,255,255,.7)}
+.track b{width:5px;height:5px;border-radius:50%;background:var(--red);flex:none}
 .pitch{position:relative;container-type:inline-size;overflow:hidden;user-select:none;-webkit-user-select:none;background:var(--grass-a)}
 .pitch svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .slot{position:absolute;transform:translate(-50%,-50%);width:17.5cqw;--u:1cqw}
@@ -205,7 +208,49 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
 .sheetbody textarea{width:100%;min-height:210px;padding:12px;border:1px solid var(--hair);border-radius:12px;background:var(--field);font:14px/1.5 var(--body);color:var(--fg)}
 .float{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;width:max-content;max-width:min(92vw,484px);padding:12px 14px;border-radius:14px;background:var(--white);color:var(--ink);font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.45);display:flex;gap:14px;align-items:center}
 .float button{background:var(--ink);color:var(--white);border-radius:9px;padding:7px 10px;font:700 15px/1 var(--num);letter-spacing:.01em;flex:none}
-@media (prefers-reduced-motion:no-preference){.sheet-card{animation:up .22s cubic-bezier(.2,.8,.2,1)}@keyframes up{from{transform:translateY(30px);opacity:.5}}}
+/* ---------- gerak ---------- */
+:root{--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.56,.64,1)}
+.slot{transition:left .6s var(--ease),top .6s var(--ease)}
+.pitch.dragging .slot{transition:none}
+.card,.btn,.sbtn,.ubah,.sq,.fchip,.act,.row{transition:transform .16s var(--ease)}
+.card:active,.btn:active,.sbtn:active,.ubah:active,.sq:active,.fchip:active{transform:scale(.95)}
+.row:active{transform:scale(.985)}
+.xibar i{transition:background-color .3s ease,transform .3s var(--spring);transition-delay:calc(var(--i)*35ms)}
+.xibar i.on{transform:scaleY(1.35)}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(22px) scale(.9)}}
+@keyframes pop{0%{transform:scale(.82);opacity:.3}55%{transform:scale(1.06);opacity:1}100%{transform:none}}
+@keyframes numIn{from{opacity:0;transform:translateY(40%)}}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}}
+@keyframes grow{from{transform:scaleX(0)}}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@keyframes marquee{to{transform:translateX(-100%)}}
+@keyframes ghostIn{from{opacity:0;transform:translateX(-30px)}}
+@keyframes pulse{50%{outline-color:rgba(255,255,255,.35)}}
+@media (prefers-reduced-motion:no-preference){
+  .meta,.hp,.hf,.xi,.fctl,.viewtabs{animation:rise .7s var(--ease) both}
+  .hp{animation-delay:.08s}.xi{animation-delay:.16s}.hf{animation-delay:.22s}.fctl{animation-delay:.3s}.viewtabs{animation-delay:.36s}
+  .pitch.intro .slot .card{animation:cardIn .65s var(--ease) both;animation-delay:calc(.35s + var(--i)*55ms)}
+  .card.pop{animation:pop .5s var(--ease)}
+  .fbig.swap{animation:numIn .45s var(--ease)}
+  .track{animation:marquee 26s linear infinite}
+  #vPitch:not([hidden]),#vList:not([hidden]){animation:viewIn .4s var(--ease)}
+  .viewtabs button[aria-selected="true"]::after,.ptab[aria-selected="true"]::after{transform-origin:left;animation:grow .35s var(--ease)}
+  .rows.anim .row{animation:rise .45s var(--ease) both;animation-delay:calc(var(--i)*28ms)}
+  .card.swap{animation:pulse 1s ease-in-out infinite}
+  .sheet{animation:fade .2s ease}
+  .sheet-card{animation:up .32s var(--ease)}
+  .sheetbody > *{animation:rise .45s var(--ease) both}
+  .sheetbody > :nth-child(2){animation-delay:.05s}.sheetbody > :nth-child(3){animation-delay:.1s}.sheetbody > :nth-child(4){animation-delay:.15s}.sheetbody > :nth-child(n+5){animation-delay:.2s}
+  .acts .act{animation:rise .4s var(--ease) both;animation-delay:calc(.12s + var(--i)*40ms)}
+  .prof .ghost{animation:ghostIn .7s var(--ease) both .1s}
+  .prof .shot{animation:rise .6s var(--ease) both .05s}
+  .float{animation:rise .3s var(--ease)}
+  @supports (animation-timeline:view()){
+    .reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+  }
+}
 </style>
 
 </head>
@@ -217,7 +262,7 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
       <div class="app-id"><span class="key">Tata Tim</span><span class="lab">Championship 26/27</span></div>
     </div>
     <div class="hero">
-      <div class="hp"><span class="lab">Total Poin <em id="sGames"></em></span><div class="pbig" id="sPts">0<small>pts</small></div></div>
+      <div class="hp"><span class="lab">Total Poin <em id="sGames"></em></span><div class="pbig" id="sPts"><span>0</span><small>pts</small></div></div>
       <div class="hf"><span class="lab">Formasi</span><div class="fbig" id="fname">4-3-3</div></div>
       <div class="fctl">
         <button class="sq" data-act="fprev" aria-label="Formasi sebelumnya">‹</button>
@@ -226,7 +271,7 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
       </div>
       <div class="xi" aria-live="polite">
         <span class="lab">Starting XI</span>
-        <b id="sXI">0<small>/11</small></b>
+        <b id="sXI"><span>0</span><small>/11</small></b>
         <div class="xibar" id="xiBar" aria-hidden="true"></div>
         <div class="age"><span>Usia rata-rata</span><b id="sAge">–</b></div>
       </div>
@@ -239,20 +284,20 @@ h2{margin:0;font:800 32px/.9 var(--num);letter-spacing:0}
   </div></header>
 
   <div id="vPitch">
-    <div class="board inner" aria-hidden="true"><span>Deltras FC</span><span>#Identitasedarjo</span></div>
+    <div class="board" aria-hidden="true"><div class="track"><span>Deltras FC</span><b></b><i>#Identitasedarjo</i><b></b><span>The Lobster</span><b></b><i>Seputar Deltras</i><b></b></div><div class="track"><span>Deltras FC</span><b></b><i>#Identitasedarjo</i><b></b><span>The Lobster</span><b></b><i>Seputar Deltras</i><b></b></div></div>
     <div class="pitch" id="pitch"><div id="pitchBg"></div><div id="slots"></div></div>
     <div class="inner">
       <p class="hint" id="hint" aria-live="polite"></p>
       <section class="sec" aria-labelledby="hSubs">
-        <div class="sechead"><h2 id="hSubs">Cadangan</h2><span id="subCount"></span></div>
+        <div class="sechead reveal"><h2 id="hSubs">Cadangan</h2><span id="subCount"></span></div>
         <div class="subs" id="subs"></div>
       </section>
       <section class="sec" aria-labelledby="hShare">
-        <div class="sechead"><h2 id="hShare">Bagikan</h2></div>
-        <label class="field" for="coach"><span class="lab">Nama Pelatih</span>
+        <div class="sechead reveal"><h2 id="hShare">Bagikan</h2></div>
+        <label class="field reveal" for="coach"><span class="lab">Nama Pelatih</span>
           <input id="coach" type="text" maxlength="28" placeholder="Nama Kamu" autocomplete="off">
         </label>
-        <div class="btns">
+        <div class="btns reveal">
           <button class="btn primary" data-act="export">Share ke Sosmed-mu!</button>
           <button class="btn ghost" data-act="clear">Kosongkan Susunan</button>
         </div>
@@ -303,6 +348,16 @@ var $ = function(s){return document.querySelector(s);};
 var esc = function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
 var initials = function(p){return p.short.split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();};
 var nf = new Intl.NumberFormat('id-ID',{maximumFractionDigits:1,minimumFractionDigits:1});
+/* angka menghitung naik/turun ke nilai baru */
+function tween(el,to,fmt){
+  if(!el) return;
+  if(to==null){ el.textContent='–'; el._v=null; return; }
+  var from=el._v==null?0:el._v; el._v=to;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||from===to){ el.textContent=fmt(to); return; }
+  var t0=performance.now(), dur=el._init?520:1100; el._init=1;
+  cancelAnimationFrame(el._raf);
+  (function step(now){ var k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3); el.textContent=fmt(from+(to-from)*e); if(k<1) el._raf=requestAnimationFrame(step); })(t0);
+}
 
 /* ---------- state ---------- */
 function sampleState(){
@@ -398,28 +453,44 @@ function cardHTML(z,i,role){
   if(z==='xi'&&p.pos!==role) bd+='<span class="bd w" title="Di luar lini">!</span>';
   return '<span class="card r-'+p.pos+(sw?' swap':'')+'"'+attrs+' aria-label="'+esc(p.name+', '+POS[p.pos]+', nomor '+p.num)+'"><span class="pic">'+picInner(p)+'</span>'+bd+'<span class="nm">'+esc(p.short)+'</span><span class="val"><b>'+p.num+'</b><i>'+p.pos+'</i></span></span>';
 }
+var RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* isi ulang satu wadah tanpa menghapusnya, supaya posisi bisa beranimasi dan kartu yang berubah bisa "pop" */
+function patch(el,html,id){
+  if(el._h===html) return;
+  var changed=el._h!==undefined&&el._id!==id;
+  el.innerHTML=html; el._h=html; el._id=id;
+  if(changed&&id!=null&&!RM){ var c=el.firstChild; c.classList.add('pop'); c.addEventListener('animationend',function(){c.classList.remove('pop');},{once:true}); }
+}
+var slotEls=[], subEls=[], booted=false;
 function renderPitch(){
   G=geom(S.rows);
   var pitch=$('#pitch'); pitch.style.aspectRatio='100 / '+G.H; pitch.classList.toggle('free',S.free);
-  $('#pitchBg').innerHTML=pitchSVG(G.H);
-  $('#slots').innerHTML=S.xi.map(function(id,i){
-    var q=pt(i);
-    return '<div class="slot" data-slot="'+i+'" style="left:'+q.x+'%;top:'+q.y+'%">'+cardHTML('xi',i,roleOf(i))+'</div>';
-  }).join('');
+  var bg=pitchSVG(G.H); if($('#pitchBg')._h!==bg){ $('#pitchBg').innerHTML=bg; $('#pitchBg')._h=bg; }
+  if(!slotEls.length){ for(var k=0;k<11;k++){ var d=document.createElement('div'); d.className='slot'; d.dataset.slot=k; d.style.setProperty('--i',k); $('#slots').appendChild(d); slotEls.push(d); } }
+  S.xi.forEach(function(id,i){
+    var q=pt(i), el=slotEls[i];
+    el.style.left=q.x+'%'; el.style.top=q.y+'%';
+    patch(el,cardHTML('xi',i,roleOf(i)),id);
+  });
 }
 function renderSubs(){
-  $('#subs').innerHTML=S.bench.map(function(id,i){ return '<div class="sub">'+cardHTML('b',i,null)+'</div>'; }).join('');
+  if(!subEls.length){ for(var k=0;k<7;k++){ var d=document.createElement('div'); d.className='sub reveal'; $('#subs').appendChild(d); subEls.push(d); } }
+  S.bench.forEach(function(id,i){ patch(subEls[i],cardHTML('b',i,null),id); });
   var n=S.bench.filter(function(x){return x!=null;}).length;
   $('#subCount').innerHTML='<em>'+n+'</em>/7';
 }
 function renderHead(){
   var xs=S.xi.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);}), n=xs.length;
-  $('#fname').textContent=S.rows.join('-'); $('#fname').classList.toggle('long',S.rows.length>3);
-  $('#sAge').textContent=n?nf.format(xs.reduce(function(a,p){return a+p.age;},0)/n):'–';
-  $('#sXI').innerHTML=n+'<small>/11</small>';
-  var tp=teamPoints(), pe=$('#sPts'); pe.innerHTML=tp+'<small>pts</small>'; pe.classList.toggle('d3',String(Math.abs(tp)).length>=3||tp<0);
+  var fn=$('#fname'), fs=S.rows.join('-');
+  if(fn.textContent!==fs){ fn.textContent=fs; if(booted&&!RM){ fn.classList.remove('swap'); void fn.offsetWidth; fn.classList.add('swap'); } }
+  fn.classList.toggle('long',S.rows.length>3);
+  tween($('#sAge'),n?xs.reduce(function(a,p){return a+p.age;},0)/n:null,function(v){return nf.format(v);});
+  tween($('#sXI span'),n,function(v){return Math.round(v);});
+  var tp=teamPoints(), pe=$('#sPts'); tween(pe.firstChild,tp,function(v){return Math.round(v);}); pe.classList.toggle('d3',String(Math.abs(tp)).length>=3||tp<0);
   $('#sGames').textContent=MATCHES.length?MATCHES.length+' laga':'Belum ada laga';
-  var bar=$('#xiBar'); bar.className='xibar'+(n===11?' full':''); bar.innerHTML=S.xi.map(function(x){return '<i'+(x!=null?' class="on"':'')+'></i>';}).join('');
+  var bar=$('#xiBar'); bar.className='xibar'+(n===11?' full':'');
+  if(bar.children.length!==11) bar.innerHTML=S.xi.map(function(x,i){return '<i style="--i:'+i+'"></i>';}).join('');
+  var on=0; S.xi.forEach(function(x){ if(x!=null) on++; }); [].forEach.call(bar.children,function(el,i){ el.classList.toggle('on',i<on); });
   $('#sampleNote').hidden=!S.sample;
   var msg;
   if(n<11) msg='<b>Kurang '+(11-n)+' pemain.</b> Ketuk kartu kosong untuk memilih.';
@@ -435,6 +506,7 @@ function renderHead(){
 }
 
 /* daftar pemain (tampilan Daftar dan lembar pilih) */
+function animRows(el){ el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); clearTimeout(el._t); el._t=setTimeout(function(){el.classList.remove('anim');},900); }
 function cnt(t){ return t==='ALL'?P.length:P.filter(function(p){return p.pos===t;}).length; }
 function makeList(root,ls,pre){
   root.innerHTML='<div class="ctl"><div class="ptabs" role="tablist" aria-label="Filter posisi">'+
@@ -447,14 +519,15 @@ function makeList(root,ls,pre){
     var q=ls.q.trim().toLowerCase();
     var list=P.filter(function(p){ return (ls.tab==='ALL'||p.pos===ls.tab)&&(!q||p.name.toLowerCase().indexOf(q)>=0||String(p.num)===q); });
     list.sort(function(a,b){return ls.sort==='age'?(a.age-b.age||a.num-b.num):ls.sort==='name'?a.name.localeCompare(b.name):a.num-b.num;});
-    rowsEl.innerHTML=list.length?list.map(function(p){
+    rowsEl.innerHTML=list.length?list.map(function(p,idx){
       var l=loc(p.id), st=l?(l.z==='xi'?'XI':'Cad'):'';
-      return '<div class="row r-'+p.pos+'" data-pid="'+p.id+'" role="button" tabindex="0"><span class="no">'+p.num+'</span><span class="ph">'+picInner(p)+'</span>'+
+      return '<div class="row r-'+p.pos+'" style="--i:'+Math.min(idx,14)+'" data-pid="'+p.id+'" role="button" tabindex="0"><span class="no">'+p.num+'</span><span class="ph">'+picInner(p)+'</span>'+
         '<span class="who"><b>'+esc(p.name)+'</b><small>'+p.age+' tahun · '+esc(p.country)+'</small></span>'+
         '<span class="tag"><span class="pp">'+p.pos+'</span>'+(st?'<span class="st">'+st+'</span>':'')+'</span></div>';
     }).join(''):'<div class="empty-list">Tidak ada pemain yang cocok.</div>';
   }
-  root.addEventListener('click',function(e){var t=e.target.closest('.ptab'); if(t){ls.tab=t.dataset.tab;refresh();}});
+  root.addEventListener('click',function(e){var t=e.target.closest('.ptab'); if(t){ls.tab=t.dataset.tab;animRows(rowsEl);refresh();}});
+  animRows(rowsEl);
   root.querySelector('input').addEventListener('input',function(e){ls.q=e.target.value;refresh();});
   root.querySelector('select').addEventListener('change',function(e){ls.sort=e.target.value;refresh();});
   root.querySelector('select').value=ls.sort;
@@ -479,7 +552,7 @@ function openPick(t,role){
 function openPlayer(z,i){
   var p=byId.get(get(z,i)); if(!p) return;
   var isCap=S.cap===p.id, isVice=S.vice===p.id;
-  function act(a,label,state,cls){ return '<button class="act'+(cls?' '+cls:'')+'" data-act="'+a+'"><span>'+label+'</span><em>'+state+'</em></button>'; }
+  var ai=0; function act(a,label,state,cls){ return '<button class="act'+(cls?' '+cls:'')+'" style="--i:'+(ai++)+'" data-act="'+a+'"><span>'+label+'</span><em>'+state+'</em></button>'; }
   openSheet('player',z==='xi'?'Starting XI':'Cadangan',
     '<div class="prof"><span class="ghost">'+p.num+'</span><span class="shot">'+(p.photo?'<img src="'+p.photo+'" alt="">':'<span class="ini">'+esc(initials(p))+'</span>')+'</span>'+
       '<div class="nm"><span class="lab">'+POS[p.pos]+' · '+esc(p.country)+'</span><b>'+esc(p.name)+'</b></div></div>'+
@@ -586,7 +659,7 @@ var suppress=false;
 document.addEventListener('click',function(e){
   if(suppress){ suppress=false; return; }
   var a=e.target.closest('[data-act]'); if(a){ doAct(a.dataset.act); return; }
-  var v=e.target.closest('[data-view]'); if(v){ view=v.dataset.view; render(); return; }
+  var v=e.target.closest('[data-view]'); if(v){ var nv=v.dataset.view; if(nv!==view&&nv==='list') animRows($('#squadRoot .rows')); view=nv; render(); return; }
   var f=e.target.closest('[data-form]'); if(f){ mutate(function(){setRows(PRESETS.find(function(x){return x[0]===f.dataset.form;})[1]);}); return; }
   var s=e.target.closest('.card[data-z]'); if(s){ tapSlot(s.dataset.z,+s.dataset.i); return; }
   var r=e.target.closest('.row[data-pid]'); if(r){ tapRow(+r.dataset.pid,!!r.closest('#sheet')); return; }
@@ -612,7 +685,7 @@ $('#coach').addEventListener('input',function(e){ S.coach=e.target.value.slice(0
   pitch.addEventListener('pointermove',function(e){
     if(!drag||e.pointerId!==drag.pid) return;
     if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6) return;
-    drag.moved=true;
+    drag.moved=true; pitch.classList.add('dragging');
     var r=pitch.getBoundingClientRect();
     drag.x=+Math.min(91,Math.max(9,(e.clientX-r.left)/r.width*100)).toFixed(1);
     drag.y=+Math.min(91,Math.max(11,(e.clientY-r.top)/r.height*100)).toFixed(1);
@@ -620,7 +693,7 @@ $('#coach').addEventListener('input',function(e){ S.coach=e.target.value.slice(0
   });
   function end(e){
     if(!drag||e.pointerId!==drag.pid) return;
-    var d=drag; drag=null;
+    var d=drag; drag=null; pitch.classList.remove('dragging');
     if(d.moved){ suppress=true; setTimeout(function(){suppress=false;},0); S.pos[d.i]={x:d.x,y:d.y}; S.sample=false; save(); render(); }
   }
   pitch.addEventListener('pointerup',end); pitch.addEventListener('pointercancel',end);
@@ -764,7 +837,9 @@ async function exportImage(){
   });
 }
 
-render();
+$('#pitch').classList.add('intro');
+render(); booted=true;
+setTimeout(function(){ $('#pitch').classList.remove('intro'); },1600);
 })();
 </script>
 
