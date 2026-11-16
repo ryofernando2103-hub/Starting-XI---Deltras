@@ -9,7 +9,7 @@
 :root{
   --bg:#F2F2F4; --card:#FFFFFF; --card-2:#F2F2F4; --fg:#141416; --mute:#8B8B94; --hair:#ECECF0; --field:#F2F2F4; --ph:#ECECF0;
   --accent:#B41B16; --accent-ink:#FFFFFF; --accent-text:#B41B16;
-  --hero:#141416; --hero-ink:#FFFFFF; --hero-mute:rgba(255,255,255,.6); --hero-2:rgba(255,255,255,.08);
+  --hero:#B41B16; --hero-ink:#FFFFFF; --hero-mute:rgba(255,255,255,.72); --hero-2:rgba(0,0,0,.16);
   --plate:#F2F2F4; --seg:#E7E7EB; --seg-on:#FFFFFF; --pill:#141416; --pill-ink:#FFFFFF;
   --grass:#4FB062; --grass-2:#47A55A; --win:#1F9D55; --win-bg:#E3F5EA; --draw-bg:#EDEDF0; --loss-bg:#FBE5E4;
   --shadow:0 1px 2px rgba(20,20,22,.04),0 8px 24px rgba(20,20,22,.05);
@@ -79,12 +79,12 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 .note{margin:0 0 12px;padding:12px 14px;border-radius:18px;background:var(--card);font-size:13.5px;color:var(--mute)}
 
 /* tim + lapangan */
-.teamhead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:14px}
-.fbig{font:800 54px/.85 var(--num);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:4px}
-.fbig.long{font-size:46px}
+.teamhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.fshape{flex:none;width:150px;height:84px;border-radius:20px;background:var(--card-2);padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.fbig{font:800 40px/.9 var(--num);letter-spacing:-.015em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .fctl{display:flex;gap:6px}
-.sq{width:40px;height:40px;border-radius:50%;background:var(--card-2);display:grid;place-items:center;font:600 20px/1 var(--body);color:var(--fg)}
-.ubah{height:40px;padding:0 16px;border-radius:999px;background:var(--pill);color:var(--pill-ink);font-weight:600;font-size:14px}
+.sq{width:38px;height:38px;border-radius:50%;background:var(--card-2);display:grid;place-items:center;font:600 20px/1 var(--body);color:var(--fg)}
+.ubah{height:38px;padding:0 15px;border-radius:999px;background:var(--pill);color:var(--pill-ink);font-weight:600;font-size:14px}
 .pitch{position:relative;container-type:inline-size;overflow:hidden;border-radius:22px;user-select:none;-webkit-user-select:none;
   background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.055) 0 26px,transparent 26px 52px),var(--grass)}
 .pitch svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -297,7 +297,7 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 
 <div class="app">
   <header class="topbar inner">
-    <div><h1>Tata Tim Deltras</h1><p>Susun XI-mu, kumpulkan poin tiap laga</p></div>
+    <div><h1>Build your Starting XI</h1><p>Susun XI-mu sebagai Coach Online</p></div>
     <button class="skin" data-act="skin" aria-label="Ganti latar putih atau hitam"><svg viewBox="0 0 24 24" aria-hidden="true" id="skinIc"></svg></button>
   </header>
   <div class="inner">
@@ -322,7 +322,7 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
     <p class="note" id="sampleNote" hidden>Susunan contoh. Ubah sesukamu, atau <button class="textbtn" data-act="clear">kosongkan</button>.</p>
     <section class="panel" aria-label="Starting XI">
       <div class="teamhead">
-        <div><span class="lab">Formasi</span><div class="fbig" id="fname">4-3-3</div></div>
+        <div class="fshape"><span class="lab">Formasi</span><div class="fbig" id="fname">4-3-3</div></div>
         <div class="fctl">
           <button class="sq" data-act="fprev" aria-label="Formasi sebelumnya">‹</button>
           <button class="sq" data-act="fnext" aria-label="Formasi berikutnya">›</button>
@@ -544,7 +544,6 @@ function renderHead(){
   var xs=S.xi.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);}), n=xs.length;
   var fn=$('#fname'), fs=S.rows.join('-');
   if(fn.textContent!==fs){ fn.textContent=fs; if(booted&&!RM){ fn.classList.remove('swap'); void fn.offsetWidth; fn.classList.add('swap'); } }
-  fn.classList.toggle('long',S.rows.length>3);
   tween($('#sAge'),n?xs.reduce(function(a,p){return a+p.age;},0)/n:null,function(v){return nf.format(v);});
   tween($('#sXI span'),n,function(v){return Math.round(v);});
   var tp=teamPoints(), pe=$('#sPts'); tween(pe.firstChild,tp,function(v){return Math.round(v);}); pe.classList.toggle('d3',String(Math.abs(tp)).length>=3||tp<0);
