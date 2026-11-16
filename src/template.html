@@ -19,15 +19,6 @@
   --white:#FFFFFF; --ink:#141416; --red:#B41B16;
   color-scheme:light;
 }
-:root[data-skin="dark"]{
-  --bg:#0A0A0B; --card:#161618; --card-2:#202023; --fg:#F4F4F6; --mute:#8D8D96; --hair:#232326; --field:#202023; --ph:#26262A;
-  --accent-text:#FF5A4E;
-  --hero:#B41B16; --hero-ink:#FFFFFF; --hero-mute:rgba(255,255,255,.7); --hero-2:rgba(0,0,0,.16);
-  --plate:#FFFFFF; --seg:#1C1C1F; --seg-on:#2C2C30; --pill:#FFFFFF; --pill-ink:#141416;
-  --grass:#2F8F45; --grass-2:#2A853F; --win:#47D483; --win-bg:rgba(71,212,131,.14); --draw-bg:#26262A; --loss-bg:rgba(255,90,78,.15);
-  --shadow:none;
-  color-scheme:dark;
-}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{background:var(--bg)}
@@ -48,8 +39,6 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:18px 14px}
 .topbar h1{margin:0;font:700 24px/1.1 var(--body);letter-spacing:-.02em}
 .topbar p{margin:3px 0 0;font-size:13px;color:var(--mute)}
-.skin{width:44px;height:44px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;flex:none}
-.skin svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
 /* kartu hero */
 .hero{position:relative;overflow:hidden;background:var(--hero);color:var(--hero-ink);border-radius:28px;padding:18px 18px 16px;display:grid;gap:16px}
@@ -110,9 +99,9 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 .sechead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:14px}
 .sechead span{font-size:13px;color:var(--mute)}
 .sechead span em{font-style:normal;color:var(--fg);font-weight:600}
-.subs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 6px;container-type:inline-size}
-.sub{--av:15cqw}
-.sub .pc .nm{background:var(--card-2);color:var(--fg);font-size:12px}
+.subs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 4px;container-type:inline-size}
+.sub{--av:13cqw}
+.sub .pc .nm{background:var(--card-2);color:var(--fg);font-size:11px;padding:3px 6px}
 .sub .pc .av{border-color:var(--card);box-shadow:none;background:var(--card-2)}
 .sub .pc.empty .av{border:2px dashed var(--hair);background:none;color:var(--mute)}
 .sub .pc.empty .nm{background:none;color:var(--mute)}
@@ -298,7 +287,6 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 <div class="app">
   <header class="topbar inner">
     <div><h1>Build your Starting XI</h1><p>Susun XI-mu sebagai Coach Online</p></div>
-    <button class="skin" data-act="skin" aria-label="Ganti latar putih atau hitam"><svg viewBox="0 0 24 24" aria-hidden="true" id="skinIc"></svg></button>
   </header>
   <div class="inner">
     <section class="hero" aria-live="polite">
@@ -371,9 +359,6 @@ var PTS = {};
 var POS = {GK:'Kiper',DF:'Bek',MF:'Gelandang',FW:'Penyerang'};
 var PRESETS = [['4-3-3',[4,3,3]],['4-4-2',[4,4,2]],['4-2-3-1',[4,2,3,1]],['3-5-2',[3,5,2]],['3-4-3',[3,4,3]],['5-3-2',[5,3,2]],['4-1-4-1',[4,1,4,1]],['4-5-1',[4,5,1]],['5-4-1',[5,4,1]],['4-3-2-1',[4,3,2,1]]];
 var KEY = 'deltras-tata-tim-v2';
-var SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', MOON='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>';
-function setSkin(k){ document.documentElement.dataset.skin=k; try{ localStorage.setItem('deltras-skin',k); }catch(e){} var ic=document.getElementById('skinIc'); if(ic) ic.innerHTML=k==='dark'?SUN:MOON; }
-(function(){ var k='light'; try{ k=localStorage.getItem('deltras-skin')||'light'; }catch(e){} setSkin(k); })();
 /* statistik per laga: {pekan, lawan, skor, kebobolan, pemain:{nomor:{m,g,a,gc,sv,ps,pm,yc,rc,og}}} */
 var MATCHES = __MATCHES__;
 /* jadwal: {tanggal, jam (null bila selesai), kandang, tamu, skor_kandang, skor_tamu, stadion} */
@@ -408,7 +393,7 @@ function tween(el,to,fmt){
 
 /* ---------- state ---------- */
 function sampleState(){
-  return {rows:[4,3,3],xi:[29,13,4,3,26,6,5,8,11,10,77],bench:[null,null,null,null,null,null,null],pos:{},cap:null,vice:null,coach:'',free:false,sample:true,since:Date.now(),hist:{}};
+  return {rows:[4,3,3],xi:[29,13,4,3,26,6,5,8,11,10,77],bench:[null,null,null,null,null,null,null,null,null,null],pos:{},cap:null,vice:null,coach:'',free:false,sample:true,since:Date.now(),hist:{}};
 }
 function okRows(r){ return Array.isArray(r)&&r.length>=3&&r.length<=4&&r.every(function(n){return n>=1&&n<=5;})&&r.reduce(function(a,b){return a+b;},0)===10; }
 function load(){
@@ -416,7 +401,7 @@ function load(){
     var j=JSON.parse(localStorage.getItem(KEY)||'null'); if(!j) return null;
     var seen=new Set();
     var clean=function(a,n){var r=[];for(var k=0;k<n;k++){var id=a&&a[k];if(id==null||!byId.has(id)||seen.has(id)){r.push(null);}else{seen.add(id);r.push(id);}}return r;};
-    var xi=clean(j.xi,11), bench=clean(j.bench,7), placed=new Set(xi.concat(bench));
+    var xi=clean(j.xi,11), bench=clean(j.bench,10), placed=new Set(xi.concat(bench));
     return {rows:okRows(j.rows)?j.rows:[4,3,3],xi:xi,bench:bench,pos:(j.pos&&typeof j.pos==='object')?j.pos:{},cap:placed.has(j.cap)?j.cap:null,vice:placed.has(j.vice)?j.vice:null,coach:String(j.coach||'').slice(0,28),free:!!j.free,sample:!!j.sample,since:typeof j.since==='number'?j.since:Date.now(),hist:(j.hist&&typeof j.hist==='object')?j.hist:{}};
   }catch(e){return null;}
 }
@@ -537,10 +522,10 @@ function renderPitch(){
   });
 }
 function renderSubs(){
-  if(!subEls.length){ for(var k=0;k<7;k++){ var d=document.createElement('div'); d.className='sub'; $('#subs').appendChild(d); subEls.push(d); } }
+  if(!subEls.length){ for(var k=0;k<10;k++){ var d=document.createElement('div'); d.className='sub'; $('#subs').appendChild(d); subEls.push(d); } }
   S.bench.forEach(function(id,i){ patch(subEls[i],cardHTML('b',i,null),id); });
   var n=S.bench.filter(function(x){return x!=null;}).length;
-  $('#subCount').innerHTML='<em>'+n+'</em> dari 7';
+  $('#subCount').innerHTML='<em>'+n+'</em> dari '+S.bench.length;
 }
 function renderHead(){
   var xs=S.xi.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);}), n=xs.length;
@@ -736,7 +721,7 @@ function tapRow(id,inSheet){
   var dst=null,i;
   for(i=0;i<11;i++) if(S.xi[i]==null&&roleOf(i)===p.pos){dst={z:'xi',i:i};break;}
   if(!dst) for(i=0;i<11;i++) if(S.xi[i]==null){dst={z:'xi',i:i};break;}
-  if(!dst) for(i=0;i<7;i++) if(S.bench[i]==null){dst={z:'b',i:i};break;}
+  if(!dst) for(i=0;i<S.bench.length;i++) if(S.bench[i]==null){dst={z:'b',i:i};break;}
   if(!dst){ toast('XI dan cadangan sudah penuh. Keluarkan satu pemain dulu.'); return; }
   mutate(function(){assign(dst.z,dst.i,id);});
   toast(p.short+' masuk '+(dst.z==='xi'?'starting XI.':'cadangan.'));
@@ -750,7 +735,6 @@ function doAct(act){
   var t=target, id=t?get(t.z,t.i):null, k;
   switch(act){
     case 'close': closeSheet(); break;
-    case 'skin': setSkin(document.documentElement.dataset.skin==='dark'?'light':'dark'); break;
     case 'fprev': cycle(-1); break;
     case 'fnext': cycle(1); break;
     case 'form': formSheet(); break;
@@ -788,7 +772,7 @@ function randomLineup(){
   }
   var rest=shuffle(P.filter(function(p){return !used.has(p.id);})), bench=[];
   var gk=rest.findIndex(function(p){return p.pos==='GK';}); if(gk>=0) bench.push(rest.splice(gk,1)[0].id);
-  while(bench.length<7&&rest.length) bench.push(rest.shift().id);
+  while(bench.length<10&&rest.length) bench.push(rest.shift().id);
   S.xi=xi; S.bench=bench; S.cap=xi[1+Math.floor(Math.random()*10)]; S.vice=null;
 }
 
