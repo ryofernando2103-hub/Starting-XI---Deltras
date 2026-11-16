@@ -862,89 +862,86 @@ var IMGS={}; var LOGO=new Image(); LOGO.src='data:image/webp;base64,UklGRgxNAABX
 P.forEach(function(p){ if(p.photo){ var im=new Image(); im.src=p.photo; IMGS[p.id]=im; } });
 function rr(g,x,y,w,h,r){ if(typeof r==='number') r=[r,r,r,r]; g.beginPath(); g.moveTo(x+r[0],y); g.lineTo(x+w-r[1],y); g.arcTo(x+w,y,x+w,y+r[1],r[1]); g.lineTo(x+w,y+h-r[2]); g.arcTo(x+w,y+h,x+w-r[2],y+h,r[2]); g.lineTo(x+r[3],y+h); g.arcTo(x,y+h,x,y+h-r[3],r[3]); g.lineTo(x,y+r[0]); g.arcTo(x,y,x+r[0],y,r[0]); g.closePath(); }
 var NUM='"Barlow Condensed", "Arial Narrow", sans-serif', BODY='Barlow, system-ui, sans-serif';
-function drawCard(g,p,cx,top,w,opt){
-  var u=w/17.5, ph=16*u, bh=5*u, x=cx-w/2;
-  var rad=1.6*u; g.save(); rr(g,x,top,w,ph,[rad,rad,0,0]); g.clip(); g.fillStyle=opt.picBg; g.fillRect(x,top,w,ph);
-  var im=IMGS[p.id];
-  if(im&&im.complete&&im.naturalWidth){ g.drawImage(im,0,0,im.naturalWidth,im.naturalWidth*ph/w,x,top,w,ph); }
-  else{ g.fillStyle='#fff'; g.font='800 '+Math.round(7*u)+'px '+NUM; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(p),cx,top+ph/2); }
-  g.restore();
-  g.fillStyle='#fff'; g.fillRect(x,top+ph,w,bh);
-  g.fillStyle=opt.valBg; rr(g,x,top+ph+bh,w,bh,[0,0,rad,rad]); g.fill();
-  g.textAlign='center'; g.textBaseline='middle';
-  g.fillStyle='#130F0E'; g.font='700 '+Math.round(3.4*u)+'px '+NUM; g.fillText(p.short,cx,top+ph+bh/2+1,w-1.2*u);
-  g.font='800 '+Math.round(3.7*u)+'px '+NUM; var nw=g.measureText(String(p.num)).width;
-  g.font='600 '+Math.round(2.6*u)+'px '+NUM; var pw=g.measureText(p.pos).width, gap=1.1*u, sx=cx-(nw+gap+pw)/2, by=top+ph+bh*1.5+1;
-  g.textAlign='left'; g.fillStyle='#fff'; g.font='800 '+Math.round(3.7*u)+'px '+NUM; g.fillText(String(p.num),sx,by);
-  g.fillStyle='rgba(255,255,255,.62)'; g.font='600 '+Math.round(2.6*u)+'px '+NUM; g.fillText(p.pos,sx+nw+gap,by);
-  var letter=S.cap===p.id?'C':S.vice===p.id?'V':null;
-  if(letter){ var b=4.4*u; g.fillStyle='#130F0E'; g.beginPath(); g.arc(x+.8*u+b/2,top+.8*u+b/2,b/2,0,Math.PI*2); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.font='800 '+Math.round(3*u)+'px '+NUM; g.fillText(letter,x+.8*u+b/2,top+.8*u+b/2+1); }
-}
 function line(g,x1,y1,x2,y2,c){ g.strokeStyle=c; g.lineWidth=2; g.beginPath(); g.moveTo(x1,y1); g.lineTo(x2,y2); g.stroke(); }
+/* lingkaran foto + pill nama, sama seperti chip di lapangan */
+function drawChip(g,p,cx,cy,r,o){
+  o=o||{};
+  g.save(); g.shadowColor='rgba(0,0,0,.22)'; g.shadowBlur=r*.45; g.shadowOffsetY=r*.12;
+  g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2); g.fillStyle='#fff'; g.fill(); g.restore();
+  g.save(); g.beginPath(); g.arc(cx,cy,r-r*.1,0,Math.PI*2); g.clip(); g.fillStyle='#EEF0F2'; g.fillRect(cx-r,cy-r,r*2,r*2);
+  var im=IMGS[p.id], ir=r-r*.1;
+  if(im&&im.complete&&im.naturalWidth){ g.drawImage(im,0,0,im.naturalWidth,im.naturalWidth,cx-ir,cy-ir*1.04,ir*2,ir*2); }
+  else{ g.fillStyle='#141416'; g.font='800 '+Math.round(r*.72)+'px '+NUM; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(p),cx,cy+2); }
+  g.restore();
+  var fs=o.fs||Math.round(r*.46), maxW=o.maxW||r*3; g.font='600 '+fs+'px '+INTER;
+  var tw=Math.min(g.measureText(p.short).width,maxW-fs), pw=tw+fs*1.1, ph=fs*1.7, py=cy+r+fs*.35;
+  g.fillStyle=o.pillBg||'#141416'; rr(g,cx-pw/2,py,pw,ph,ph/2); g.fill();
+  g.fillStyle=o.pillInk||'#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(p.short,cx,py+ph/2+1,maxW-fs);
+  var letter=S.cap===p.id?'C':S.vice===p.id?'V':null;
+  if(letter){ var br=r*.3, bx=cx+r*.72, by=cy-r*.72; g.beginPath(); g.arc(bx,by,br,0,Math.PI*2); g.fillStyle=letter==='C'?'#B41B16':'#141416'; g.fill(); g.lineWidth=r*.07; g.strokeStyle='#fff'; g.stroke();
+    g.fillStyle='#fff'; g.font='800 '+Math.round(br*1.15)+'px '+NUM; g.fillText(letter,bx,by+1); }
+}
+var INTER='Inter, system-ui, sans-serif';
 async function exportImage(){
   toast('Menyiapkan gambar…');
-  try{ await Promise.all([document.fonts.load('800 40px "Barlow Condensed"'),document.fonts.load('700 40px "Barlow Condensed"'),document.fonts.load('600 40px "Barlow Condensed"'),document.fonts.load('500 20px Barlow'),document.fonts.load('italic 500 22px Barlow')]); }catch(e){}
-  var W=1080, H=1620, SIDE=312, BEN=304, PY=H-BEN, c=document.createElement('canvas'); c.width=W; c.height=H; var g=c.getContext('2d');
+  try{ await Promise.all([document.fonts.load('800 40px "Barlow Condensed"'),document.fonts.load('700 40px Inter'),document.fonts.load('600 20px Inter'),document.fonts.load('500 20px Inter')]); }catch(e){}
+  var W=1080, H=1620, M=48, CW=W-2*M, c=document.createElement('canvas'); c.width=W; c.height=H; var g=c.getContext('2d');
   var xs=S.xi.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);});
   var bench=S.bench.filter(function(x){return x!=null;}).map(function(x){return byId.get(x);});
-  var cap=S.cap!=null?byId.get(S.cap):null;
-  var L=28, CW=SIDE-2*L;
-  function lab(txt,y,col){ g.textAlign='left'; g.textBaseline='alphabetic'; g.fillStyle=col||'rgba(255,255,255,.72)'; g.font='500 21px '+BODY; g.fillText(txt,L,y); }
-  /* ---- panel kiri ---- */
-  g.fillStyle='#B41B16'; g.fillRect(0,0,SIDE,PY);
-  if(LOGO.complete&&LOGO.naturalWidth){ var lh=50; g.drawImage(LOGO,L,36,LOGO.naturalWidth*lh/LOGO.naturalHeight,lh); }
-  g.fillStyle='#fff'; g.font='700 22px '+NUM; g.textAlign='left'; g.fillText('STARTING XI',L,132);
-  g.fillStyle='rgba(255,255,255,.72)'; g.font='500 19px '+BODY; g.fillText('Championship 26/27',L,160);
-  /* kotak poin */
-  var by=196, bh=258; g.fillStyle='#130F0E'; rr(g,L-8,by,CW+16,bh,26); g.fill();
-  g.fillStyle='rgba(255,255,255,.62)'; g.font='500 21px '+BODY; g.fillText('Total Poin',L+14,by+48);
-  var pts=String(teamPoints()); g.fillStyle='#fff'; g.font='800 '+(pts.length>=3?128:150)+'px '+NUM; g.fillText(pts,L+10,by+206,CW-70);
-  var pw=Math.min(g.measureText(pts).width,CW-70); g.fillStyle='rgba(255,255,255,.55)'; g.font='700 34px '+NUM; g.fillText('pts',L+18+pw,by+206);
-  g.fillStyle='rgba(255,255,255,.18)'; g.fillRect(L+14,by+bh-22,CW-12,5);
-  var nfill=xs.length; for(var k=0;k<11;k++){ g.fillStyle=k<nfill?(nfill===11?'#3DDC84':'#fff'):'rgba(255,255,255,.18)'; g.fillRect(L+14+k*((CW-12)/11),by+bh-22,(CW-12)/11-4,5); }
-  /* formasi & usia */
-  line(g,L,512,SIDE-L,512,'rgba(255,255,255,.28)');
-  lab('Formasi',560); g.fillStyle='#fff'; g.font='800 '+(S.rows.length>3?92:108)+'px '+NUM; g.fillText(S.rows.join('-'),L-3,664,CW+6);
-  line(g,L,712,SIDE-L,712,'rgba(255,255,255,.28)');
-  lab('Usia rata-rata',760); g.fillStyle='#fff'; g.font='800 84px '+NUM;
-  g.fillText(xs.length?nf.format(xs.reduce(function(a,p){return a+p.age;},0)/xs.length):'–',L-2,846);
-  line(g,L,896,SIDE-L,896,'rgba(255,255,255,.28)');
-  lab('Kapten',944); g.fillStyle='#fff'; g.font='700 38px '+NUM; g.fillText(cap?cap.name:'–',L,986,CW);
-  lab('Pelatih',1046); g.fillStyle='#fff'; g.font='700 38px '+NUM; g.fillText(S.coach.trim()||'Deltamania',L,1088,CW);
-  g.fillStyle='rgba(255,255,255,.75)'; g.font='italic 500 22px '+BODY; g.fillText('#Identitasedarjo',L,PY-40);
-  /* ---- lapangan ---- */
-  var PX=SIDE, PWd=W-SIDE, BOARD=38, PT=BOARD, PH=PY-BOARD;
-  g.fillStyle='#130F0E'; g.fillRect(PX,0,PWd,BOARD);
-  g.fillStyle='#fff'; g.font='700 17px '+NUM; g.textBaseline='middle'; g.textAlign='left'; g.fillText('D E L T R A S   F C',PX+24,BOARD/2+1);
-  g.textAlign='right'; g.fillStyle='rgba(255,255,255,.6)'; g.font='700 17px '+NUM; g.fillText('T A T A   T I M',W-24,BOARD/2+1);
-  var s=PWd/100, sy=PH/G.H, ox=PX, oy=PT;
-  g.save(); g.beginPath(); g.rect(PX,PT,PWd,PH); g.clip();
-  g.fillStyle='#0FA04B'; g.fillRect(PX,PT,PWd,PH);
-  for(var y=0,k2=0;y<G.H;y+=ROWH/2,k2++){ if(k2%2){ g.fillStyle='#14AB54'; g.fillRect(PX,oy+y*sy,PWd,ROWH/2*sy+1); } }
-  var LN=pitchLines(G.H); g.strokeStyle='rgba(255,255,255,.85)'; g.lineWidth=3.5; g.lineJoin='round';
-  var X=function(v){return ox+v*s;}, Y=function(v){return oy+v*sy;};
-  g.fillStyle='rgba(255,255,255,.22)'; g.fillRect(X(42),Y(1.5),16*s,4.5*sy); g.strokeRect(X(42),Y(1.5),16*s,4.5*sy);
-  LN.polys.forEach(function(p){ g.beginPath(); p.forEach(function(q,i){ var px=X(q[0]),py=Y(q[1]); if(q[0]<=-2) px=PX-40; if(q[0]>=102) px=W+40; if(i) g.lineTo(px,py); else g.moveTo(px,py); }); g.stroke(); });
-  g.beginPath(); g.moveTo(X(40),Y(31)); g.quadraticCurveTo(X(50),Y(38),X(60),Y(31)); g.stroke();
-  g.beginPath(); g.ellipse(X(50),Y(LN.cy),20*s,12*sy,0,0,Math.PI*2); g.stroke();
-  var cw=17.5*s, ch=26*s;
-  S.xi.forEach(function(id,i){
-    var q=pt(i), cx=X(q.x), top=oy+q.y/100*G.H*sy-ch/2;
-    if(id==null){ g.setLineDash([10,8]); g.lineWidth=3; g.strokeStyle='rgba(255,255,255,.7)'; rr(g,cx-cw/2,top,cw,ch,1.6*s); g.stroke(); g.setLineDash([]); return; }
-    drawCard(g,byId.get(id),cx,top,cw,{picBg:'rgba(0,0,0,.16)',valBg:'#130F0E'});
+  var cap=S.cap!=null?byId.get(S.cap):null, coach=S.coach.trim();
+  g.fillStyle='#F2F2F4'; g.fillRect(0,0,W,H);
+  g.textBaseline='alphabetic'; g.textAlign='left';
+  /* judul */
+  g.fillStyle='#141416'; g.font='700 50px '+INTER; g.fillText('Build your Starting XI',M,96);
+  g.fillStyle='#8B8B94'; g.font='500 25px '+INTER; g.fillText(coach?'Coach: '+coach:'Susun XI-mu sebagai Coach Online',M,136,CW);
+  /* kartu hero merah */
+  var hy=166, hh=302; g.fillStyle='#B41B16'; rr(g,M,hy,CW,hh,44); g.fill();
+  g.save(); rr(g,M,hy,CW,hh,44); g.clip(); g.beginPath(); g.arc(M+CW-40,hy+30,150,0,Math.PI*2); g.lineWidth=52; g.strokeStyle='rgba(0,0,0,.14)'; g.stroke(); g.restore();
+  if(LOGO.complete&&LOGO.naturalWidth){ var lh=46; g.drawImage(LOGO,M+34,hy+30,LOGO.naturalWidth*lh/LOGO.naturalHeight,lh); }
+  g.fillStyle='rgba(255,255,255,.72)'; g.font='500 22px '+INTER; g.textAlign='right'; g.fillText('Championship 26/27',M+CW-34,hy+60); g.textAlign='left';
+  g.fillStyle='rgba(255,255,255,.75)'; g.font='500 23px '+INTER; g.fillText('Total Poin',M+36,hy+130);
+  var pts=String(teamPoints()); g.fillStyle='#fff'; g.font='800 '+(pts.length>=3?132:150)+'px '+NUM; g.fillText(pts,M+30,hy+262,330);
+  var pw2=Math.min(g.measureText(pts).width,330); g.fillStyle='rgba(255,255,255,.72)'; g.font='700 36px '+NUM; g.fillText('pts',M+40+pw2,hy+262);
+  var sx=M+CW*.47, sw=CW*.53-34, sh=54, sg=10, sy0=hy+100;
+  [['Formasi',S.rows.join('-')],['Usia rata-rata',xs.length?nf.format(xs.reduce(function(a,p){return a+p.age;},0)/xs.length):'–'],['Kapten',cap?cap.short:'–']].forEach(function(r,i){
+    var y=sy0+i*(sh+sg); g.fillStyle='rgba(0,0,0,.16)'; rr(g,sx,y,sw,sh,18); g.fill();
+    g.textBaseline='middle'; g.fillStyle='rgba(255,255,255,.75)'; g.font='500 22px '+INTER; g.textAlign='left'; g.fillText(r[0],sx+20,y+sh/2+1);
+    g.fillStyle='#fff'; g.font=(i===2?'700 30px ':'800 36px ')+(i===2?INTER:NUM); g.textAlign='right'; g.fillText(r[1],sx+sw-20,y+sh/2+2,sw*.55); g.textAlign='left'; g.textBaseline='alphabetic';
   });
+  /* kartu lapangan */
+  var cy0=496, ch=788; g.fillStyle='#fff'; rr(g,M,cy0,CW,ch,44); g.fill();
+  var PXs=M+22, PYs=cy0+22, PW=CW-44, PH=ch-44, R=34;
+  g.save(); rr(g,PXs,PYs,PW,PH,R); g.clip();
+  g.fillStyle='#4FB062'; g.fillRect(PXs,PYs,PW,PH);
+  g.strokeStyle='rgba(255,255,255,.055)'; g.lineWidth=30; for(var rad=30;rad<PH;rad+=60){ g.beginPath(); g.arc(PXs+PW/2,PYs+PH/2,rad,0,Math.PI*2); g.stroke(); }
+  g.strokeStyle='rgba(255,255,255,.55)'; g.lineWidth=3;
+  var ix=PXs+PW*.04, iy=PYs+PH*.025, iw=PW*.92, ih=PH*.95;
+  rr(g,ix,iy,iw,ih,8); g.stroke();
+  g.beginPath(); g.moveTo(ix,PYs+PH/2); g.lineTo(ix+iw,PYs+PH/2); g.stroke();
+  g.beginPath(); g.arc(PXs+PW/2,PYs+PH/2,PW*.12,0,Math.PI*2); g.stroke();
+  g.strokeRect(PXs+PW*.24,iy,PW*.52,PH*.15); g.strokeRect(PXs+PW*.38,iy,PW*.24,PH*.055);
+  g.strokeRect(PXs+PW*.24,iy+ih-PH*.15,PW*.52,PH*.15); g.strokeRect(PXs+PW*.38,iy+ih-PH*.055,PW*.24,PH*.055);
   g.restore();
-  /* ---- pita cadangan ---- */
-  g.fillStyle='#130F0E'; g.fillRect(0,PY,W,BEN);
-  g.textBaseline='alphabetic'; g.textAlign='left'; g.fillStyle='#fff'; g.font='800 40px '+NUM; g.fillText('Cadangan',L,PY+56);
-  g.fillStyle='rgba(255,255,255,.5)'; g.font='800 30px '+NUM; g.fillText(bench.length+'/7',L+g.measureText('Cadangan').width*1.33+14,PY+56);
-  g.textAlign='right'; g.fillStyle='rgba(255,255,255,.55)'; g.font='500 19px '+BODY; g.fillText('Susun XI-mu sendiri di Tata Tim Deltras',W-L,PY+54);
-  var gap=12, bw=(W-2*L-gap*6)/7, bhh=bw*26/17.5, btop=PY+80;
-  for(var b=0;b<7;b++){
-    var bx=L+b*(bw+gap);
-    if(b<bench.length) drawCard(g,bench[b],bx+bw/2,btop,bw,{picBg:'#221B19',valBg:'#B41B16'});
-    else { g.setLineDash([8,7]); g.lineWidth=2; g.strokeStyle='rgba(255,255,255,.22)'; rr(g,bx,btop,bw,bhh,1.6*bw/17.5); g.stroke(); g.setLineDash([]); }
-  }
+  var rowGap=ROWH/G.H*PH, cr=Math.min(50,PW*.058,rowGap*.3);
+  S.xi.forEach(function(id,i){
+    var q=pt(i), cx=PXs+q.x/100*PW, cyy=PYs+q.y/100*PH-cr*.35;
+    if(id==null){ g.save(); g.setLineDash([9,7]); g.lineWidth=3; g.strokeStyle='rgba(255,255,255,.85)'; g.beginPath(); g.arc(cx,cyy,cr,0,Math.PI*2); g.stroke(); g.restore();
+      g.fillStyle='#fff'; g.font='400 '+Math.round(cr*.9)+'px '+INTER; g.textAlign='center'; g.textBaseline='middle'; g.fillText('+',cx,cyy+2); return; }
+    drawChip(g,byId.get(id),cx,cyy,cr,{fs:Math.round(Math.min(22,cr*.48)),maxW:PW*.18});
+  });
+  /* kartu cadangan */
+  var by2=cy0+ch+26, bh2=H-by2-70; g.fillStyle='#fff'; rr(g,M,by2,CW,bh2,40); g.fill();
+  g.textBaseline='alphabetic'; g.textAlign='left'; g.fillStyle='#141416'; g.font='700 32px '+INTER; g.fillText('Cadangan',M+34,by2+56);
+  g.textAlign='right'; g.fillStyle='#8B8B94'; g.font='500 22px '+INTER; g.fillText(bench.length+' dari '+S.bench.length,M+CW-34,by2+54);
+  var n=S.bench.length, slotW=(CW-68)/n, br2=Math.min(40,slotW*.36), bcy=by2+92+br2;
+  S.bench.forEach(function(id,i){
+    var cx=M+34+slotW*(i+.5);
+    if(id==null){ g.save(); g.setLineDash([7,6]); g.lineWidth=2.5; g.strokeStyle='#DADAE0'; g.beginPath(); g.arc(cx,bcy,br2,0,Math.PI*2); g.stroke(); g.restore(); return; }
+    drawChip(g,byId.get(id),cx,bcy,br2,{fs:Math.round(Math.min(19,slotW*.17)),maxW:slotW-6,pillBg:'#F2F2F4',pillInk:'#141416'});
+  });
+  /* kaki */
+  g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#8B8B94'; g.font='500 21px '+INTER;
+  g.fillText('Tata Tim Deltras  ·  Seputar Deltras  ·  #Identitasedarjo',W/2,H-36);
   var url=c.toDataURL('image/png');
   var dl=null; try{ dl=(window.claude&&window.claude.use)?await window.claude.use('downloads'):null; }catch(e){ dl=null; }
   var web=!window.claude, fname='susunan-deltras-'+S.rows.join('-')+'.png';
