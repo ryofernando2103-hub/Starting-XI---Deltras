@@ -34,7 +34,45 @@ python3 scripts/prep_players.py   # hanya jika roster, nama, atau foto berubah
 python3 scripts/build.py
 ```
 
-## Menambah poin dari laga
+## Statistik otomatis dari ileague.id
+
+Robot `scripts/update_stats.py` berjalan otomatis lewat GitHub Actions (`.github/workflows/update-stats.yml`) tiap jam pukul 16.17–06.17 WIB. Robot hanya menghubungi ileague.id bila ada laga Deltras dalam 3 hari terakhir yang skor atau statistiknya belum tercatat.
+
+Yang dilakukan robot:
+1. Membaca daftar laga di halaman klub Deltras untuk memperbarui tanggal, jam, stadion, dan skor di `data/fixtures.json`.
+2. Untuk laga yang selesai **mulai 21 November 2026 (vs Persela)**, membaca halaman detail laga: susunan pemain, pergantian (untuk menit bermain), gol lawan (untuk kebobolan), dan kartu merah.
+3. Mengambil statistik tiap pemain Deltras yang bermain: gol, assist, penyelamatan, kartu kuning, dan gol bunuh diri.
+4. Menulis `data/matches.json`, membangun ulang halaman, lalu menyimpan ke GitHub. Vercel menerbitkan ulang otomatis.
+
+Pemain dicocokkan lewat nomor punggung. Pemain yang belum ada di skuad dilewati dan dicatat di log Actions.
+
+Menjalankan manual:
+
+```bash
+python3 scripts/update_stats.py --dry-run                              # lihat hasil tanpa menulis
+python3 scripts/update_stats.py --dry-run --from 2026-09-01 --force    # uji pada laga lama
+```
+
+Robot juga bisa dijalankan dari tab **Actions → Perbarui statistik laga → Run workflow** di GitHub.
+
+### Koreksi manual
+
+Penalti gagal (`pm`) dan penalti yang diselamatkan (`ps`) belum tersedia di ileague, dan data ileague bisa saja keliru. Tulis koreksi di `data/overrides.json`; isinya menimpa hasil robot:
+
+```json
+{
+  "2026-11-21": {
+    "pemain": {
+      "10": {"pm": 1},
+      "29": {"ps": 1, "sv": 5}
+    }
+  }
+}
+```
+
+Nilai `null` untuk seorang pemain menghapusnya dari laga itu.
+
+## Menambah poin dari laga secara manual
 
 1. Isi skor laga di `data/fixtures.json` (`skor_kandang`, `skor_tamu`) dan kosongkan `jam` menjadi `null`.
 2. Tambahkan statistik laga ke `data/matches.json`. Kunci `tanggal` harus sama dengan tanggal di `fixtures.json`, dan kunci `pemain` adalah nomor punggung. Pemain yang tidak bermain tidak perlu ditulis.
