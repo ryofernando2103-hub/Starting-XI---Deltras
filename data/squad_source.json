@@ -1,0 +1,332 @@
+[
+ {
+  "id": 54,
+  "number": 21,
+  "name": "HAVIDZ",
+  "position": "GK",
+  "age": 24,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/54.png",
+  "ileague_name": "HAVIZD"
+ },
+ {
+  "id": 61,
+  "number": 29,
+  "name": "S REIMAS",
+  "position": "GK",
+  "age": 34,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/61.png",
+  "ileague_name": "S.CH. REIMAS"
+ },
+ {
+  "id": 65,
+  "number": 33,
+  "name": "ABDUL ROHIM",
+  "position": "GK",
+  "age": 34,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/65.png",
+  "ileague_name": "A ROHIM"
+ },
+ {
+  "id": 69,
+  "number": 81,
+  "name": "RAFI ARDIONO",
+  "position": "GK",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/69.png",
+  "ileague_name": "RAFI"
+ },
+ {
+  "id": 38,
+  "number": 3,
+  "name": "BAGUS NIRWANTO",
+  "position": "DF",
+  "age": 33,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/38.png",
+  "ileague_name": "NIRWANTO"
+ },
+ {
+  "id": 33,
+  "number": 4,
+  "name": "TAHER J",
+  "position": "DF",
+  "age": 36,
+  "country": "Iran",
+  "photo": "https://deltrasfc.com/assets/images/player/33.png",
+  "ileague_name": "TAHER"
+ },
+ {
+  "id": 46,
+  "number": 13,
+  "name": "M IDRIS",
+  "position": "DF",
+  "age": 28,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/46.png",
+  "ileague_name": "IDRIS"
+ },
+ {
+  "id": 48,
+  "number": 15,
+  "name": "A DWI",
+  "position": "DF",
+  "age": 23,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/48.png",
+  "ileague_name": "ACHMAD DWI"
+ },
+ {
+  "id": 49,
+  "number": 16,
+  "name": "RADITYA",
+  "position": "DF",
+  "age": 19,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/49.png",
+  "ileague_name": "RADITYA"
+ },
+ {
+  "id": 50,
+  "number": 17,
+  "name": "USEMAHU",
+  "position": "DF",
+  "age": 29,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/50.png",
+  "ileague_name": "USEMAHU"
+ },
+ {
+  "id": 58,
+  "number": 26,
+  "name": "MARCKHO",
+  "position": "DF",
+  "age": 32,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/58.png",
+  "ileague_name": "MARCKHO.M"
+ },
+ {
+  "id": 63,
+  "number": 31,
+  "name": "C DEO",
+  "position": "DF",
+  "age": 19,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/63.png",
+  "ileague_name": "DEO"
+ },
+ {
+  "id": 66,
+  "number": 35,
+  "name": "REZA WILI",
+  "position": "DF",
+  "age": 26,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/66.png",
+  "ileague_name": "REZA WILI"
+ },
+ {
+  "id": 67,
+  "number": 45,
+  "name": "M.D. IBROHIM",
+  "position": "DF",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/67.png",
+  "ileague_name": "MD IBROHIM"
+ },
+ {
+  "id": 40,
+  "number": 5,
+  "name": "IXHLASUL QADRI",
+  "position": "MF",
+  "age": 26,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/40.png",
+  "ileague_name": "QADRI"
+ },
+ {
+  "id": 42,
+  "number": 6,
+  "name": "MANDACINGI",
+  "position": "MF",
+  "age": 33,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/42.png",
+  "ileague_name": "MANDACINGI"
+ },
+ {
+  "id": 43,
+  "number": 8,
+  "name": "ANANTA KRISNA",
+  "position": "MF",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/43.png",
+  "ileague_name": "ANANTA KRISNA"
+ },
+ {
+  "id": 47,
+  "number": 14,
+  "name": "HARIONO",
+  "position": "MF",
+  "age": 41,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/47.png",
+  "ileague_name": "HARIONO"
+ },
+ {
+  "id": 51,
+  "number": 19,
+  "name": "R. A. PELLU",
+  "position": "MF",
+  "age": 34,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/51.png",
+  "ileague_name": "R. PELLU"
+ },
+ {
+  "id": 55,
+  "number": 22,
+  "name": "ICHASAN PRATAMA",
+  "position": "MF",
+  "age": 33,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/55.png",
+  "ileague_name": "I. PRATAMA"
+ },
+ {
+  "id": 60,
+  "number": 28,
+  "name": "GADING",
+  "position": "MF",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/60.png",
+  "ileague_name": "G.MAHARDIAN"
+ },
+ {
+  "id": 37,
+  "number": 87,
+  "name": "SHULTON FAJAR",
+  "position": "MF",
+  "age": 32,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/37.png",
+  "ileague_name": "SHULTON"
+ },
+ {
+  "id": 44,
+  "number": 9,
+  "name": "M IRMAN",
+  "position": "FW",
+  "age": 27,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/44.png",
+  "ileague_name": "M.IRMAN"
+ },
+ {
+  "id": 34,
+  "number": 10,
+  "name": "NADER MOCHINE",
+  "position": "FW",
+  "age": 32,
+  "country": "Portugal",
+  "photo": "https://deltrasfc.com/assets/images/player/34.png",
+  "ileague_name": "N. MOHCINE"
+ },
+ {
+  "id": 45,
+  "number": 11,
+  "name": "WIGI PRATAMA",
+  "position": "FW",
+  "age": 22,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/45.png",
+  "ileague_name": "WIGI"
+ },
+ {
+  "id": 35,
+  "number": 18,
+  "name": "MARTINUS",
+  "position": "FW",
+  "age": 31,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/35.png",
+  "ileague_name": "MARTINUS"
+ },
+ {
+  "id": 53,
+  "number": 20,
+  "name": "M AULIA",
+  "position": "FW",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/53.png",
+  "ileague_name": "AULIA RAHMAN"
+ },
+ {
+  "id": 56,
+  "number": 23,
+  "name": "HAMDI SULA",
+  "position": "FW",
+  "age": 29,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/56.png",
+  "ileague_name": "HAMDI SULA"
+ },
+ {
+  "id": 57,
+  "number": 25,
+  "name": "KETUT DEDI",
+  "position": "FW",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/57.png",
+  "ileague_name": "KETUT DEDI"
+ },
+ {
+  "id": 59,
+  "number": 27,
+  "name": "RAFLY JUNIAR",
+  "position": "FW",
+  "age": 19,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/59.png",
+  "ileague_name": "RAFLY JUNIAR"
+ },
+ {
+  "id": 62,
+  "number": 30,
+  "name": "NATHAN ARI",
+  "position": "FW",
+  "age": 20,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/62.png",
+  "ileague_name": "NATHAN"
+ },
+ {
+  "id": 64,
+  "number": 32,
+  "name": "AQIL A",
+  "position": "FW",
+  "age": 18,
+  "country": "Indonesia",
+  "photo": "https://deltrasfc.com/assets/images/player/64.png",
+  "ileague_name": "AGUSTIAN"
+ },
+ {
+  "id": 68,
+  "number": 77,
+  "name": "LOPEZ",
+  "position": "FW",
+  "age": 25,
+  "country": "Brasil",
+  "photo": "https://deltrasfc.com/assets/images/player/68.png",
+  "ileague_name": "LOPES"
+ }
+]

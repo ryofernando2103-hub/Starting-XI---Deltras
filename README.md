@@ -1,0 +1,85 @@
+# Tata Tim Deltras
+
+Website untuk menyusun starting XI **Deltras FC** bergaya Fantasy Premier League, dibuat untuk **Seputar Deltras**. Pengguna memilih formasi, menempatkan 11 pemain dan 7 cadangan, menunjuk kapten, lalu membagikan susunannya sebagai gambar PNG.
+
+Halaman ini berupa satu file HTML mandiri, `dist/index.html`. Semua data, foto, dan logo tertanam di dalamnya, jadi tidak perlu server.
+
+## Struktur
+
+| Path | Isi |
+|---|---|
+| `src/template.html` | Kode halaman (HTML, CSS, JS) dengan placeholder `__PLAYERS__`, `__LOGO__`, `__MATCHES__` |
+| `data/squad_source.json` | Data skuad mentah: nama dan posisi dari deltrasfc.com, usia dan negara dari ileague.id |
+| `data/players.json` | Data pemain siap pakai beserta foto (dibuat oleh `prep_players.py`) |
+| `data/matches.json` | Statistik per laga untuk menghitung poin |
+| `assets/photos/` | Foto asli pemain per nomor punggung |
+| `assets/logo/` | Logo Seputar Deltras |
+| `scripts/prep_players.py` | Membuat `data/players.json` (nama pendek, koreksi nama, kompres foto) |
+| `scripts/build.py` | Merakit `dist/index.html` |
+| `dist/index.html` | Hasil akhir yang dipublikasikan |
+
+## Membangun ulang
+
+Perlu Python 3 dan Pillow (`pip install pillow`).
+
+```bash
+python3 scripts/prep_players.py   # hanya jika roster, nama, atau foto berubah
+python3 scripts/build.py
+```
+
+## Menambah poin dari laga
+
+Tambahkan satu objek per laga ke `data/matches.json`, lalu jalankan `build.py`. Kunci `pemain` adalah nomor punggung. Pemain yang tidak bermain tidak perlu ditulis.
+
+```json
+[
+  {
+    "pekan": 12,
+    "lawan": "Persipura",
+    "skor": "2-1",
+    "kebobolan": 1,
+    "pemain": {
+      "10": {"m": 90, "g": 2},
+      "77": {"m": 90, "a": 1, "yc": 1},
+      "29": {"m": 90, "sv": 4},
+      "11": {"m": 65, "gc": 0}
+    }
+  }
+]
+```
+
+| Kode | Arti |
+|---|---|
+| `m` | Menit bermain |
+| `g` / `a` | Gol / assist |
+| `gc` | Gol kebobolan selama pemain di lapangan. Jika kosong, memakai `kebobolan` laga |
+| `sv` | Penyelamatan (kiper) |
+| `ps` / `pm` | Penalti diselamatkan / penalti gagal |
+| `yc` / `rc` | Kartu kuning / merah |
+| `og` | Gol bunuh diri |
+
+### Aturan poin (mengikuti FPL)
+
+| Kejadian | Poin |
+|---|---|
+| Main < 60 menit / ≥ 60 menit | +1 / +2 |
+| Gol: kiper atau bek / gelandang / penyerang | +6 / +5 / +4 |
+| Assist | +3 |
+| Clean sheet (≥ 60 menit): kiper atau bek / gelandang | +4 / +1 |
+| Tiap 3 penyelamatan (kiper) | +1 |
+| Penalti diselamatkan | +5 |
+| Tiap 2 kebobolan (kiper atau bek) | −1 |
+| Penalti gagal | −2 |
+| Kartu kuning / merah | −1 / −3 |
+| Gol bunuh diri | −2 |
+
+Total poin tim adalah jumlah poin 11 pemain starting XI, dan poin kapten dihitung dua kali. Cadangan tidak dihitung.
+
+## Catatan data
+
+- Ada 33 pemain Senior Team (Pegadaian Championship 2026/27).
+- Nomor 32 dikoreksi menjadi **Aqila Agustian**. Di sumber tertulis "Aqil A" dan "Agustian".
+- Foto **#35 Reza Wili** dan **#45 Ibrohim** di deltrasfc.com adalah file yang identik, jadi keduanya tampil dengan inisial. Taruh foto yang benar di `assets/photos/` lalu hapus nomornya dari `NO_PHOTO` di `prep_players.py`.
+- Posisi mengikuti kategori klub (GK/DF/MF/FW), tanpa posisi rinci seperti bek kiri.
+- Usia diambil November 2026 dan perlu diperbarui tiap musim.
+- Susunan pengguna tersimpan di browser masing-masing (`localStorage`). Belum ada login atau papan peringkat.
