@@ -2,7 +2,10 @@
 
 Website untuk menyusun starting XI **Deltras FC** bergaya Fantasy Premier League, dibuat untuk **Seputar Deltras**. Pengguna memilih formasi, menempatkan 11 pemain dan 7 cadangan, menunjuk kapten, lalu membagikan susunannya sebagai gambar PNG.
 
-Halaman ini berupa satu file HTML mandiri, `dist/index.html`. Semua data, foto, dan logo tertanam di dalamnya, jadi tidak perlu server.
+Halaman ini berupa satu file HTML mandiri. Semua data, foto, dan logo tertanam di dalamnya, jadi tidak perlu server.
+
+- `public/index.html`: versi web, dihosting di Vercel (`vercel.json` mengarahkan Vercel ke folder `public`).
+- `dist/index.html`: versi artifact claude.ai.
 
 ## Struktur
 
@@ -16,7 +19,8 @@ Halaman ini berupa satu file HTML mandiri, `dist/index.html`. Semua data, foto, 
 | `assets/logo/` | Logo Seputar Deltras |
 | `scripts/prep_players.py` | Membuat `data/players.json` (nama pendek, koreksi nama, kompres foto) |
 | `scripts/build.py` | Merakit `dist/index.html` |
-| `dist/index.html` | Hasil akhir yang dipublikasikan |
+| `public/index.html` | Hasil akhir untuk website (Vercel) |
+| `dist/index.html` | Hasil akhir untuk artifact claude.ai |
 
 ## Membangun ulang
 

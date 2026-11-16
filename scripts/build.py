@@ -1,8 +1,10 @@
-"""Merakit dist/index.html dari src/template.html + data + logo.
+"""Merakit halaman dari src/template.html + data + logo.
 
     python3 scripts/build.py
 
-dist/index.html adalah file yang dipublikasikan sebagai artifact.
+Hasil:
+- dist/index.html    untuk artifact claude.ai (tanpa kerangka dokumen)
+- public/index.html  dokumen HTML lengkap untuk hosting web (Vercel)
 """
 import base64
 import io
@@ -35,6 +37,17 @@ def main():
         assert token not in html, token
     out = ROOT / 'dist' / 'index.html'
     out.write_text(html, encoding='utf8')
+    # Versi web: bagian sebelum <div class="app"> (title, font, style) masuk ke <head>.
+    head, body = html.split('<div class="app">', 1)
+    web = ('<!doctype html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n'
+           '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
+           '<meta name="theme-color" content="#B41B16">\n'
+           '<meta name="description" content="Susun starting XI Deltras FC versimu, lalu bagikan ke sesama Deltamania.">\n'
+           '<style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}'
+           'body{margin:0}img{max-width:100%}</style>\n'
+           + head + '</head>\n<body>\n<div class="app">' + body + '\n</body>\n</html>\n')
+    (ROOT / 'public').mkdir(exist_ok=True)
+    (ROOT / 'public' / 'index.html').write_text(web, encoding='utf8')
     print(f'dist/index.html ditulis ({out.stat().st_size // 1024} KB, {len(matches)} laga)')
 
 
