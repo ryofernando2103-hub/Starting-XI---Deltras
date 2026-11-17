@@ -188,6 +188,26 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 .cd span{font-size:12px;color:var(--mute)}
 .cdl{margin:-4px 0 0;font-size:12.5px;color:var(--mute)}
 .cdl b{color:var(--fg);font-weight:600}
+.ko.live{padding-top:10px}
+.ko.live b{font-size:54px;display:flex;gap:6px;align-items:baseline}
+.ko.live b i{font-style:normal;color:var(--mute);font-size:.6em}
+.lvtag{display:inline-flex;align-items:center;gap:6px;font:700 12px/1 var(--body);padding:6px 10px;border-radius:999px;background:var(--accent);color:#fff}
+.lvtag::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:lvb 1.2s ease-in-out infinite}
+.lvtag.ft{background:var(--card-2);color:var(--fg)}.lvtag.ft::before{display:none}
+@keyframes lvb{50%{opacity:.25}}
+.evs{display:grid;gap:6px;text-align:left}
+.ev{display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;gap:8px;font-size:13.5px}
+.ev .m{font:800 15px/1 var(--num);text-align:center;color:var(--mute)}
+.ev .a{grid-column:3}.ev .h{grid-column:1;text-align:right}
+.ev .m{grid-column:2;grid-row:1}
+.ev span{display:inline-flex;gap:6px;align-items:center;min-width:0}
+.ev .h{justify-content:flex-end}
+.ev i{flex:none;width:9px;height:12px;border-radius:2px;display:inline-block}
+.ev i.yellow{background:#F5C518}.ev i.red{background:#D7261E}
+.ev i.goal,.ev i.og{width:auto;height:auto;font-style:normal;font-size:13px}
+.evnone{font-size:13px;color:var(--mute);text-align:center;margin:0}
+.lvnote{margin:-4px 0 0;font-size:12px;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){.lvtag::before{animation:none}}
 .fxrow{display:grid;grid-template-columns:40px 36px minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--hair)}
 .fxrow:last-child{border-bottom:0;padding-bottom:2px}
 .fxd{display:grid;justify-items:center;line-height:1}
@@ -666,19 +686,58 @@ function updateCountdown(){
   if(now<dl){ var c=cdParts(dl-now); el.innerHTML='<div><b>'+c[0]+'</b><span>Hari</span></div><div><b>'+c[1]+'</b><span>Jam</span></div><div><b>'+c[2]+'</b><span>Menit</span></div>'; }
   else el.innerHTML='<div style="min-width:0;padding-inline:16px"><b>'+(now<ko?'Deadline lewat':'Menunggu hasil')+'</b><span>'+(now<ko?'Susunanmu sudah tercatat':'Skor akan diperbarui')+'</span></div>';
 }
+// ---------- Skor live (versi web) ----------
+var LIVE_ON = __LIVE__, LV={d:null,data:null,at:0,busy:false};
+function liveFx(){ var now=Date.now(); for(var i=0;i<FX.length;i++){ var ko=kickoffOf(FX[i]); if(now>=ko-15*60e3&&now<ko+150*60e3) return FX[i]; } return null; }
+function liveOf(f){ return LV.data&&LV.d===f.tanggal&&LV.data.state!=='pre'?LV.data:null; }
+function liveGoal(old,nw,f){
+  var side=nw.home.score>old.home.score?'home':'away', team=side==='home'?f.kandang:f.tamu, ours=team==='deltras';
+  var ev=nw[side].events.filter(function(e){return e.type==='goal'||e.type==='og';}).pop();
+  toast((ours?'GOOOL DELTRAS! ':'Gol '+TEAMS[team].pendek+'. ')+(ev?ev.name+' '+ev.min+'\' · ':'')+TEAMS[f.kandang].pendek+' '+nw.home.score+'–'+nw.away.score+' '+TEAMS[f.tamu].pendek,6000);
+  try{ if(navigator.vibrate) navigator.vibrate(ours?[220,90,220,90,420]:[160]); }catch(e){}
+}
+function pollLive(force){
+  if(!LIVE_ON||LV.busy||document.visibilityState==='hidden') return;
+  var f=liveFx(); if(!f){ if(LV.data){ LV.data=null; renderMatch(); } return; }
+  if(!force&&Date.now()-LV.at<55e3) return;
+  LV.busy=true; LV.at=Date.now();
+  fetch('/api/live?d='+f.tanggal).then(function(r){return r.ok?r.json():null;}).then(function(x){
+    if(!x||x.d!==f.tanggal) return;
+    var old=LV.d===f.tanggal?LV.data:null;
+    if(old&&old.home.score!=null&&x.home.score!=null&&(x.home.score+x.away.score)>(old.home.score+old.away.score)) liveGoal(old,x,f);
+    LV.d=f.tanggal; LV.data=x; renderMatch();
+  }).catch(function(){}).then(function(){ LV.busy=false; });
+}
+function liveCard(f,x){
+  var ft=x.state==='ft', all=[];
+  ['home','away'].forEach(function(s){ x[s].events.forEach(function(e){ all.push({s:s,e:e}); }); });
+  var key=function(m){ var p=String(m).split('+'); return (+p[0]||0)+(+p[1]||0)/100; };
+  all.sort(function(a,b){return key(a.e.min)-key(b.e.min);});
+  var ic=function(e){ return e.type==='goal'?'<i class="goal">⚽</i>':e.type==='og'?'<i class="og">⚽</i>':'<i class="'+e.type+'"></i>'; };
+  return {
+    ko:'<div class="ko live"><b>'+x.home.score+'<i>–</i>'+x.away.score+'</b><span class="lvtag'+(ft?' ft':'')+'">'+(ft?'Selesai':'LIVE'+(x.phase?' · '+esc(x.phase):''))+'</span></div>',
+    body:(all.length?'<div class="evs">'+all.map(function(a){ var nm='<span class="'+(a.s==='home'?'h':'a')+'">'+(a.s==='home'?esc(a.e.name)+ic(a.e):ic(a.e)+esc(a.e.name))+(a.e.type==='og'?' (bd)':'')+'</span>';
+        return '<div class="ev">'+nm+'<b class="m">'+esc(a.e.min)+'\'</b></div>'; }).join('')+'</div>':'<p class="evnone">Belum ada gol atau kartu.</p>')+
+      '<p class="lvnote">'+(ft?'Poin pemain dihitung otomatis setelah statistik resmi keluar.':'Diperbarui tiap menit dari ileague.id')+'</p>'
+  };
+}
+setInterval(function(){ pollLive(false); },60e3);
+setTimeout(function(){ pollLive(true); },600);
+document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') pollLive(false); });
+
 function renderMatch(){
   var k=nextIdx(), h='';
   if(k>=0){
-    var f=FX[k], di=dinfo(f), home=f.kandang==='deltras', dl=new Date(deadlineOf(f)), dlTxt=String((dl.getUTCHours()+7)%24).padStart(2,'0')+'.'+String(dl.getUTCMinutes()).padStart(2,'0');
+    var f=FX[k], lv=liveOf(f), lc=lv?liveCard(f,lv):null, di=dinfo(f), home=f.kandang==='deltras', dl=new Date(deadlineOf(f)), dlTxt=String((dl.getUTCHours()+7)%24).padStart(2,'0')+'.'+String(dl.getUTCMinutes()).padStart(2,'0');
     h+='<div class="panel nextcard'+($('#matchRoot')._init?'':' intro')+'">'+
-      '<div class="nhead"><span class="lab">Laga '+(k+1)+' · Berikutnya</span><span class="ha'+(home?'':' away')+'">'+(home?'Kandang':'Tandang')+'</span></div>'+
+      '<div class="nhead"><span class="lab">Laga '+(k+1)+' · '+(lv?(lv.state==='ft'?'Hasil':'Berlangsung'):'Berikutnya')+'</span><span class="ha'+(home?'':' away')+'">'+(home?'Kandang':'Tandang')+'</span></div>'+
       '<div class="vs"><div class="team">'+plate(f.kandang)+'<b>'+esc(TEAMS[f.kandang].nama)+'</b></div>'+
-      '<div class="ko"><b>'+jam(f)+'</b><small>WIB</small></div>'+
+      (lv?lc.ko:'<div class="ko"><b>'+jam(f)+'</b><small>WIB</small></div>')+
       '<div class="team">'+plate(f.tamu)+'<b>'+esc(TEAMS[f.tamu].nama)+'</b></div></div>'+
       '<p class="ndate">'+di.hari+', '+di.tgl+' '+di.bln+' '+di.thn+'</p>'+
       '<p class="nstad">'+PIN+esc(f.stadion)+'</p>'+
-      '<div class="cd" id="cd"></div>'+
-      '<p class="cdl">menuju deadline susunan · <b>'+di.hari.slice(0,3)+' '+di.tgl+' '+di.bln.slice(0,3)+', '+dlTxt+' WIB</b></p>'+
+      (lv?lc.body:'<div class="cd" id="cd"></div>'+
+      '<p class="cdl">menuju deadline susunan · <b>'+di.hari.slice(0,3)+' '+di.tgl+' '+di.bln.slice(0,3)+', '+dlTxt+' WIB</b></p>')+
       '<button class="btn primary" data-view="pitch">Atur Start XI</button></div>';
     var up=FX.slice(k+1,k+4);
     if(up.length){

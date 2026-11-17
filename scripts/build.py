@@ -60,8 +60,9 @@ def main():
     sbc = json.loads((ROOT / 'data' / 'supabase.json').read_text(encoding='utf8'))
     sb_on = bool(sbc.get('url') and sbc.get('anon_key'))
     web_html = (html.replace('<!--SUPABASE_LIB-->', SUPABASE_LIB if sb_on else '')
-                    .replace('__SUPABASE__', compact({'url': sbc['url'], 'key': sbc['anon_key']} if sb_on else {})))
-    html = html.replace('<!--SUPABASE_LIB-->', '').replace('__SUPABASE__', '{}')
+                    .replace('__SUPABASE__', compact({'url': sbc['url'], 'key': sbc['anon_key']} if sb_on else {}))
+                    .replace('__LIVE__', 'true'))  # /api/live hanya ada di Vercel
+    html = html.replace('<!--SUPABASE_LIB-->', '').replace('__SUPABASE__', '{}').replace('__LIVE__', 'false')
     out = ROOT / 'dist' / 'index.html'
     out.write_text(html, encoding='utf8')
     # Versi web: bagian sebelum <div class="app"> (title, font, style) masuk ke <head>.
