@@ -6,14 +6,16 @@
 
 Yang diperbarui:
 - data/fixtures.json : tanggal, jam, stadion, dan skor tiap laga
-- data/matches.json  : statistik per pemain untuk laga yang sudah selesai,
-                       mulai START_DATE (poin dihitung sejak laga vs Persela)
+- data/matches.json  : statistik mentah per pemain untuk laga yang sudah selesai,
+                       mulai START_DATE (poin dihitung sejak laga vs Persela).
+                       Rating dan poin dihitung dari statistik ini (rating_of / points_of).
 Koreksi manual bisa ditulis di data/overrides.json dan akan menimpa hasil robot.
 """
 import argparse
 import datetime as dt
 import html
 import json
+import math
 import os
 import re
 import sys
@@ -149,14 +151,19 @@ def played_window(p):
 
 
 # ---------- 3. statistik per pemain ----------
-FIELDS = {'GOAL': 'g', 'ASSIST': 'a', 'SAVES': 'sv', 'YELLOW CARD': 'yc', 'OWN GOAL': 'og', 'GOAL CONCIDED': 'gc_ileague'}
+# label ileague -> kunci pendek yang dipakai website (lihat ratingOf di src/template.html)
+LABELS = [('FOULED', 'fd'), ('FOUL', 'fl'), ('YELLOW CARD', 'yc'), ('PASSING', 'pa'), ('ASSIST', 'a'),
+          ('CREATE CHANCE', 'cc'), ('DRIBBLE SUCCESS', 'dr'), ('BLOCK', 'bl'), ('CLEARANCE', 'cl'),
+          ('INTERCEPT', 'ic'), ('TACKLE', 'tk'), ('BALL RECOVERY', 'rb'), ('OWN GOAL', 'og'),
+          ('SHOOT OFF TARGET', 'sof'), ('SHOOT ON TARGET', 'sot'), ('GOAL CONCIDED', 'gc_ileague'),
+          ('GOAL', 'g'), ('SAVES', 'sv')]
 
 
 def player_stats(jadwal, pid):
     t = text(get(f'{BASE}/result/get_statistikpemain/{jadwal}/{pid}', post=True))
     out = {}
-    for label, k in FIELDS.items():
-        m = re.search(r'\|?\s*' + re.escape(label) + r'\s*\|?\s*(\d+)', t)
+    for label, k in LABELS:
+        m = re.search(r'(?<![A-Z] )\b' + re.escape(label) + r'\s+(\d+)', t)
         if m:
             out[k] = int(m.group(1))
     return out
@@ -180,7 +187,7 @@ def match_stats(fx, page, squad):
         a, b = win
         gc = sum(1 for m in opp_goals if a <= m <= b) if len(opp_goals) == conceded else None
         row = {'m': max(1, b - a)}
-        for k in ('g', 'a', 'sv', 'yc', 'og'):
+        for k in ('g', 'a', 'sv', 'yc', 'og', 'pa', 'cc', 'sot', 'sof', 'dr', 'tk', 'bl', 'ic', 'cl', 'rb', 'fl', 'fd'):
             if st.get(k):
                 row[k] = st[k]
         if not row.get('g') and p['goal']:
@@ -222,23 +229,55 @@ def needs_network(fixtures, matches, start, force):
 
 
 # ---------- 4. poin & sinkron ke Supabase (untuk peringkat) ----------
-def points_of(pos, s, ga):
-    """Sama persis dengan pointsOf() di src/template.html."""
+RW_GOAL = {'FW': 1.4, 'MF': 1.6, 'DF': 2.0, 'GK': 2.0}
+RW_CONC = {'GK': .35, 'DF': .2, 'MF': .08, 'FW': 0}
+RW_CS = {'GK': .8, 'DF': .6, 'MF': .25, 'FW': 0}
+RW_CLR = {'GK': .06, 'DF': .06, 'MF': .04, 'FW': .04}
+
+
+def floor_half(x):
+    return math.floor(x + .5)
+
+
+def rating_of(pos, s, ga, res):
+    """Rating Tata Tim 3,0-10,0. Sama persis dengan ratingOf() di src/template.html."""
+    m = s.get('m', 0)
+    if not m:
+        return None
+    gc = s['gc'] if s.get('gc') is not None else (ga or 0)
+    d = s.get('g', 0) * RW_GOAL[pos] + s.get('a', 0) * 1
+    d += s.get('cc', 0) * .25 + s.get('sot', 0) * .15 - s.get('sof', 0) * .05
+    d += s.get('dr', 0) * .12 + s.get('tk', 0) * .15 + s.get('ic', 0) * .1 + s.get('bl', 0) * .15
+    d += s.get('cl', 0) * RW_CLR[pos] + s.get('rb', 0) * .05 + min(.6, s.get('pa', 0) * .012)
+    d -= s.get('fl', 0) * .08
+    d += s.get('fd', 0) * .04
+    if pos == 'GK':
+        d += min(2, s.get('sv', 0) * .25)
+    d -= gc * RW_CONC[pos]
+    if m >= 60 and gc == 0:
+        d += RW_CS[pos]
+    d -= s.get('og', 0) * 1.2
+    d += .3 if res > 0 else -.2 if res < 0 else 0
+    d *= min(1, m / 45)
+    return math.floor(min(10, max(3, 6 + d)) * 10 + .5) / 10
+
+
+def points_of(pos, s, ga, res=0):
+    """Poin = poin main + (rating - 6,0) x 2,5, dikurangi kartu. Sama dengan pointsOf() di website."""
     m = s.get('m', 0)
     if not m:
         return 0
-    gc = s['gc'] if s.get('gc') is not None else (ga or 0)
-    t = 2 if m >= 60 else 1
-    t += s.get('g', 0) * (4 if pos == 'FW' else 5 if pos == 'MF' else 6)
-    t += s.get('a', 0) * 3
-    if m >= 60 and gc == 0:
-        t += 4 if pos in ('GK', 'DF') else 1 if pos == 'MF' else 0
-    if pos in ('GK', 'DF'):
-        t -= gc // 2
-    if pos == 'GK':
-        t += s.get('sv', 0) // 3
-    t += s.get('ps', 0) * 5 - s.get('pm', 0) * 2 - s.get('yc', 0) - s.get('rc', 0) * 3 - s.get('og', 0) * 2
-    return t
+    rt = rating_of(pos, s, ga, res)
+    return ((2 if m >= 60 else 1) + floor_half((rt - 6) * 2.5) - s.get('yc', 0) - s.get('rc', 0) * 3
+            + s.get('ps', 0) * 5 - s.get('pm', 0) * 2)
+
+
+def result_of(fixtures, date):
+    for f in fixtures:
+        if f['tanggal'] == date and f['skor_kandang'] is not None:
+            us, th = (f['skor_kandang'], f['skor_tamu']) if f['kandang'] == 'deltras' else (f['skor_tamu'], f['skor_kandang'])
+            return (us > th) - (us < th)
+    return 0
 
 
 def sb_headers(key):
@@ -278,7 +317,7 @@ def sync_supabase(fixtures, matches):
     sb_upsert('fixtures', [{'tanggal': f['tanggal'], 'kandang': f['kandang'], 'tamu': f['tamu'],
                             'kickoff': f['tanggal'] + 'T' + (f['jam'] or '19:00') + ':00+07:00',
                             'skor_kandang': f['skor_kandang'], 'skor_tamu': f['skor_tamu']} for f in fixtures], 'tanggal')
-    pts = [{'tanggal': m['tanggal'], 'num': int(n), 'points': points_of(pos[int(n)], s, m.get('kebobolan'))}
+    pts = [{'tanggal': m['tanggal'], 'num': int(n), 'points': points_of(pos[int(n)], s, m.get('kebobolan'), result_of(fixtures, m['tanggal']))}
            for m in matches if m['tanggal'] >= START_DATE for n, s in m['pemain'].items() if int(n) in pos]
     sb_upsert('player_points', pts, 'tanggal,num')
     print(f'Supabase: {len(fixtures)} jadwal, {len(pts)} poin pemain disinkronkan.')
@@ -336,10 +375,15 @@ def main():
             continue
         added.append(merge_override(entry, overrides))
 
+    pos_of = {p['num']: p for p in json.loads((ROOT / 'data' / 'players.json').read_text(encoding='utf8'))}
     for e in added:
-        print(f"\n== {e['tanggal']} (kebobolan {e['kebobolan']}) ==")
+        res = result_of(new_fixtures, e['tanggal'])
+        print(f"\n== {e['tanggal']} (kebobolan {e['kebobolan']}, hasil {'menang' if res > 0 else 'kalah' if res < 0 else 'seri'}) ==")
         for num, row in sorted(e['pemain'].items(), key=lambda x: int(x[0])):
-            print(f'  #{num:>2}', row)
+            pl = pos_of.get(int(num))
+            rt = rating_of(pl['pos'], row, e['kebobolan'], res) if pl else None
+            pt = points_of(pl['pos'], row, e['kebobolan'], res) if pl else None
+            print(f"  #{num:>2} {pl['short'] if pl else '?':<11} rating {rt}  poin {pt}  {row}")
 
     if args.dry_run:
         print('\n[dry-run] tidak ada file yang ditulis. Jadwal berubah:', changed_fx)

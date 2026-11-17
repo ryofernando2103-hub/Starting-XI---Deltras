@@ -90,41 +90,43 @@ Nilai `null` untuk seorang pemain menghapusnya dari laga itu.
     "tanggal": "2026-11-21",
     "kebobolan": 1,
     "pemain": {
-      "10": {"m": 90, "g": 2},
-      "77": {"m": 90, "a": 1, "yc": 1},
-      "29": {"m": 90, "sv": 4},
-      "11": {"m": 65, "gc": 0}
+      "10": {"m": 90, "g": 2, "pa": 14, "tk": 1},
+      "29": {"m": 90, "sv": 4, "pa": 18, "gc": 1},
+      "11": {"m": 65, "yc": 1, "gc": 0}
     }
   }
 ]
 ```
 
-| Kode | Arti |
-|---|---|
-| `m` | Menit bermain |
-| `g` / `a` | Gol / assist |
-| `gc` | Gol kebobolan selama pemain di lapangan. Jika kosong, memakai `kebobolan` laga |
-| `sv` | Penyelamatan (kiper) |
-| `ps` / `pm` | Penalti diselamatkan / penalti gagal |
-| `yc` / `rc` | Kartu kuning / merah |
-| `og` | Gol bunuh diri |
+Kunci statistik per pemain:
 
-### Aturan poin (mengikuti FPL)
+| Kode | Arti | Kode | Arti |
+|---|---|---|---|
+| `m` | menit bermain | `pa` | umpan |
+| `g` / `a` | gol / assist | `cc` | peluang tercipta |
+| `sv` | penyelamatan (kiper) | `sot` / `sof` | tembakan tepat sasaran / melenceng |
+| `gc` | kebobolan saat pemain di lapangan (kosong = kebobolan laga) | `dr` | dribel sukses |
+| `yc` / `rc` | kartu kuning / merah | `tk` / `bl` | tekel / blok |
+| `og` | gol bunuh diri | `ic` / `cl` | intersep / sapuan |
+| `ps` / `pm` | penalti diselamatkan / gagal | `rb` | rebut bola |
+| | | `fl` / `fd` | pelanggaran dibuat / diterima |
 
-| Kejadian | Poin |
-|---|---|
-| Main < 60 menit / ≥ 60 menit | +1 / +2 |
-| Gol: kiper atau bek / gelandang / penyerang | +6 / +5 / +4 |
-| Assist | +3 |
-| Clean sheet (≥ 60 menit): kiper atau bek / gelandang | +4 / +1 |
-| Tiap 3 penyelamatan (kiper) | +1 |
-| Penalti diselamatkan | +5 |
-| Tiap 2 kebobolan (kiper atau bek) | −1 |
-| Penalti gagal | −2 |
-| Kartu kuning / merah | −1 / −3 |
-| Gol bunuh diri | −2 |
+## Sistem poin: Rating Tata Tim
 
-Poin sebuah laga dihitung dari susunan yang **tercatat saat deadline** (2 jam sebelum kick-off): jumlah poin 11 pemain starting XI, dan poin kapten dihitung dua kali. Cadangan tidak dihitung. Total poin adalah jumlah poin semua laga.
+Rincian lengkap ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md). Ringkasnya:
+
+1. **Rating pemain** (3,0–10,0) dihitung dari statistik laga, mulai dari 6,0.
+2. **Poin** = poin main (+1 jika <60 menit, +2 jika ≥60 menit) + (rating − 6,0) × 2,5 dibulatkan, dikurangi **kartu kuning −1** dan **kartu merah −3**, ditambah penalti diselamatkan +5 dan dikurangi penalti gagal −2.
+3. **Poin tim** satu laga = jumlah poin 11 pemain starting XI yang tercatat saat deadline, poin **kapten ×2**. Cadangan tidak dihitung.
+4. Dihitung **mulai laga Deltras vs Persela (21 November 2026)**. Laga sebelumnya hanya tampil sebagai riwayat skor.
+
+Rumus ada di dua tempat yang harus selalu sama: `ratingOf`/`pointsOf` di `src/template.html` (tampilan) dan `rating_of`/`points_of` di `scripts/update_stats.py` (peringkat di database). Ubah keduanya sekaligus.
+
+## Kunci dan simpan susunan
+
+- Susunan **terkunci otomatis 2 jam sebelum kick-off** dan terbuka lagi 2 jam setelah kick-off. Selama terkunci tidak ada yang bisa mengubah susunan, dan database menolak penulisan susunan (aturan di `supabase/schema.sql`, bukan hanya di tampilan).
+- Saat deadline, server mencatat susunan semua coach sebagai riwayat laga itu (pencatat otomatis tiap 5 menit).
+- Penulisan ke database dibuat hemat: perubahan ditampung 20 detik, hanya dikirim bila isinya berubah dari yang terakhir tersimpan, dikirim langsung saat tab disembunyikan atau deadline kurang dari 2 menit lagi, dan bisa dipaksa lewat tombol "Simpan sekarang". Peringkat di-cache 60 detik di browser.
 
 Susunan tercatat di browser pengguna saat halaman dibuka setelah deadline lewat. Laga sebelum pengguna pertama kali membuka halaman ditandai "Tidak ikut".
 
