@@ -506,7 +506,7 @@ function swapSlots(a,b){ var t=get(a.z,a.i); arr(a.z)[a.i]=get(b.z,b.i); arr(b.z
 function setRows(rows){ S.rows=rows.slice(); S.pos={}; }
 
 var toastT;
-function toast(msg){ var t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true;},2600); }
+function toast(msg,ms){ var t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true;},ms||2600); }
 
 /* ---------- pitch drawing (layar dan gambar ekspor) ---------- */
 function pitchLines(H){
@@ -1030,7 +1030,7 @@ function openAccount(){
     '<p>Masuk sebagai <b>'+esc(me.email||'')+'</b></p>'+
     '<button class="danger" data-act="logout">Keluar</button>');
 }
-function signGoogle(){ sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl()}}).then(function(r){ if(r.error) toast('Gagal masuk dengan Google: '+r.error.message); }); }
+function signGoogle(){ sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl()}}).then(function(r){ if(r.error) toast('Gagal masuk dengan Google: '+r.error.message,8000); }); }
 function signEmail(){
   var em=($('#loginEmail').value||'').trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast('Tulis alamat email yang benar.'); return; }
@@ -1092,6 +1092,12 @@ function initOnline(){
   if(!CFG||!CFG.url||!CFG.key||!window.supabase) return;
   try{ sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}}); }catch(e){ sb=null; return; }
   renderAccount();
+  /* tampilkan alasan bila login gagal (Supabase mengirim galat lewat alamat) */
+  var qs=new URLSearchParams(location.search), hs=new URLSearchParams(location.hash.replace(/^#/,''));
+  var aerr=qs.get('error_description')||hs.get('error_description')||qs.get('error')||hs.get('error');
+  if(aerr) toast('Login gagal: '+aerr,12000);
+  else if(qs.get('code')) setTimeout(function(){ if(!me) toast('Login belum selesai. Coba lagi dari browser biasa (bukan di dalam aplikasi atau tab privat).',9000); },9000);
+  sb.auth.getSession().then(function(r){ if(r&&r.error) toast('Sesi login gagal dibaca: '+r.error.message,10000); });
   sb.auth.onAuthStateChange(function(ev,session){
     var u=session&&session.user;
     if(u&&(!me||me.id!==u.id)){ me=u; if(ev==='SIGNED_IN'&&!$('#sheet').hidden) closeSheet(); onLogin(); }
