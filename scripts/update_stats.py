@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -240,16 +241,32 @@ def points_of(pos, s, ga):
     return t
 
 
+def sb_headers(key):
+    """Kunci baru (sb_secret_...) bukan JWT: kirim hanya lewat 'apikey'. Kunci lama (JWT) juga lewat Authorization."""
+    h = {'apikey': key, 'Content-Type': 'application/json',
+         'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': UA}
+    if key.count('.') == 2:   # bentuk JWT, mis. service_role lama
+        h['Authorization'] = f'Bearer {key}'
+    return h
+
+
 def sb_upsert(table, rows, conflict):
-    url, key = os.environ.get('SUPABASE_URL', '').rstrip('/'), os.environ.get('SUPABASE_SERVICE_KEY', '')
+    url, key = os.environ.get('SUPABASE_URL', '').strip().rstrip('/'), os.environ.get('SUPABASE_SERVICE_KEY', '').strip()
     if not rows:
         return
-    req = urllib.request.Request(
-        f'{url}/rest/v1/{table}?on_conflict={conflict}', data=json.dumps(rows).encode(), method='POST',
-        headers={'apikey': key, 'Authorization': f'Bearer {key}', 'Content-Type': 'application/json',
-                 'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': UA})
-    with urllib.request.urlopen(req, timeout=40) as r:
-        r.read()
+    req = urllib.request.Request(f'{url}/rest/v1/{table}?on_conflict={conflict}', data=json.dumps(rows).encode(),
+                                 method='POST', headers=sb_headers(key))
+    try:
+        with urllib.request.urlopen(req, timeout=40) as r:
+            r.read()
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf8', 'ignore')[:500]
+        hint = ''
+        if e.code in (401, 403):
+            hint = (' | Petunjuk: kunci SUPABASE_SERVICE_KEY ditolak. Pastikan itu kunci rahasia (sb_secret_... atau '
+                    'service_role), disalin utuh, dan SUPABASE_URL berbentuk https://<id>.supabase.co tanpa garis miring.')
+        print(f'Supabase menolak permintaan ke tabel {table}: HTTP {e.code} {body}{hint}', file=sys.stderr)
+        raise SystemExit(1)
 
 
 def sync_supabase(fixtures, matches):
