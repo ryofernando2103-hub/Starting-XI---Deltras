@@ -243,8 +243,9 @@ def points_of(pos, s, ga):
 
 def sb_headers(key):
     """Kunci baru (sb_secret_...) bukan JWT: kirim hanya lewat 'apikey'. Kunci lama (JWT) juga lewat Authorization."""
+    # Supabase menolak kunci rahasia bila User-Agent tampak seperti browser (Mozilla/...), jadi pakai identitas robot.
     h = {'apikey': key, 'Content-Type': 'application/json',
-         'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': UA}
+         'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': 'tata-tim-deltras-robot/1.0'}
     if key.count('.') == 2:   # bentuk JWT, mis. service_role lama
         h['Authorization'] = f'Bearer {key}'
     return h
