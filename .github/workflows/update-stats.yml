@@ -23,7 +23,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Ambil skor dan statistik dari ileague.id
-        run: python3 scripts/update_stats.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        # Dijalankan manual (Run workflow) = paksa periksa & sinkron semua jadwal ke Supabase.
+        run: python3 scripts/update_stats.py ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
 
       - name: Bangun ulang halaman bila data berubah
         run: |

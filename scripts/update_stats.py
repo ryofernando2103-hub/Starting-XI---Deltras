@@ -14,6 +14,7 @@ import argparse
 import datetime as dt
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -219,6 +220,52 @@ def needs_network(fixtures, matches, start, force):
     return False
 
 
+# ---------- 4. poin & sinkron ke Supabase (untuk peringkat) ----------
+def points_of(pos, s, ga):
+    """Sama persis dengan pointsOf() di src/template.html."""
+    m = s.get('m', 0)
+    if not m:
+        return 0
+    gc = s['gc'] if s.get('gc') is not None else (ga or 0)
+    t = 2 if m >= 60 else 1
+    t += s.get('g', 0) * (4 if pos == 'FW' else 5 if pos == 'MF' else 6)
+    t += s.get('a', 0) * 3
+    if m >= 60 and gc == 0:
+        t += 4 if pos in ('GK', 'DF') else 1 if pos == 'MF' else 0
+    if pos in ('GK', 'DF'):
+        t -= gc // 2
+    if pos == 'GK':
+        t += s.get('sv', 0) // 3
+    t += s.get('ps', 0) * 5 - s.get('pm', 0) * 2 - s.get('yc', 0) - s.get('rc', 0) * 3 - s.get('og', 0) * 2
+    return t
+
+
+def sb_upsert(table, rows, conflict):
+    url, key = os.environ.get('SUPABASE_URL', '').rstrip('/'), os.environ.get('SUPABASE_SERVICE_KEY', '')
+    if not rows:
+        return
+    req = urllib.request.Request(
+        f'{url}/rest/v1/{table}?on_conflict={conflict}', data=json.dumps(rows).encode(), method='POST',
+        headers={'apikey': key, 'Authorization': f'Bearer {key}', 'Content-Type': 'application/json',
+                 'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': UA})
+    with urllib.request.urlopen(req, timeout=40) as r:
+        r.read()
+
+
+def sync_supabase(fixtures, matches):
+    if not os.environ.get('SUPABASE_URL') or not os.environ.get('SUPABASE_SERVICE_KEY'):
+        print('Supabase belum diatur (SUPABASE_URL / SUPABASE_SERVICE_KEY), sinkron dilewati.')
+        return
+    pos = {p['num']: p['pos'] for p in json.loads((ROOT / 'data' / 'players.json').read_text(encoding='utf8'))}
+    sb_upsert('fixtures', [{'tanggal': f['tanggal'], 'kandang': f['kandang'], 'tamu': f['tamu'],
+                            'kickoff': f['tanggal'] + 'T' + (f['jam'] or '19:00') + ':00+07:00',
+                            'skor_kandang': f['skor_kandang'], 'skor_tamu': f['skor_tamu']} for f in fixtures], 'tanggal')
+    pts = [{'tanggal': m['tanggal'], 'num': int(n), 'points': points_of(pos[int(n)], s, m.get('kebobolan'))}
+           for m in matches if m['tanggal'] >= START_DATE for n, s in m['pemain'].items() if int(n) in pos]
+    sb_upsert('player_points', pts, 'tanggal,num')
+    print(f'Supabase: {len(fixtures)} jadwal, {len(pts)} poin pemain disinkronkan.')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--dry-run', action='store_true')
@@ -245,7 +292,10 @@ def main():
         if not r:
             new_fixtures.append(f)
             continue
-        new_fixtures.append({k: r[k] for k in ('tanggal', 'jam', 'kandang', 'tamu', 'skor_kandang', 'skor_tamu', 'stadion')})
+        nf = {k: r[k] for k in ('tanggal', 'jam', 'kandang', 'tamu', 'skor_kandang', 'skor_tamu', 'stadion')}
+        if nf['jam'] is None and f['tanggal'] == nf['tanggal']:
+            nf['jam'] = f['jam']   # ileague tidak lagi menampilkan jam setelah laga selesai
+        new_fixtures.append(nf)
     changed_fx = new_fixtures != fixtures
 
     done = {m['tanggal'] for m in matches}
@@ -276,6 +326,7 @@ def main():
     if args.dry_run:
         print('\n[dry-run] tidak ada file yang ditulis. Jadwal berubah:', changed_fx)
         return
+    sync_supabase(new_fixtures, [m for m in matches if m['tanggal'] not in {e['tanggal'] for e in added}] + added)
     if changed_fx:
         fx_path.write_text(json.dumps(new_fixtures, ensure_ascii=False, indent=1) + '\n', encoding='utf8')
         print('fixtures.json diperbarui')

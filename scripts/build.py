@@ -37,6 +37,9 @@ def team_logo_uri(path):
     return 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 
+SUPABASE_LIB = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>'
+
+
 def main():
     tpl = (ROOT / 'src' / 'template.html').read_text(encoding='utf8')
     players = (ROOT / 'data' / 'players.json').read_text(encoding='utf8').strip()
@@ -53,10 +56,16 @@ def main():
                .replace('__MATCHES__', json.dumps(matches, ensure_ascii=False, separators=(',', ':'))))
     for token in ('__PLAYERS__', '__LOGO__', '__MATCHES__', '__FIXTURES__', '__TEAMS__'):
         assert token not in html, token
+    # Login online (Supabase) hanya untuk versi web; artifact claude.ai tidak bisa menghubungi server luar.
+    sbc = json.loads((ROOT / 'data' / 'supabase.json').read_text(encoding='utf8'))
+    sb_on = bool(sbc.get('url') and sbc.get('anon_key'))
+    web_html = (html.replace('<!--SUPABASE_LIB-->', SUPABASE_LIB if sb_on else '')
+                    .replace('__SUPABASE__', compact({'url': sbc['url'], 'key': sbc['anon_key']} if sb_on else {})))
+    html = html.replace('<!--SUPABASE_LIB-->', '').replace('__SUPABASE__', '{}')
     out = ROOT / 'dist' / 'index.html'
     out.write_text(html, encoding='utf8')
     # Versi web: bagian sebelum <div class="app"> (title, font, style) masuk ke <head>.
-    head, body = html.split('<div class="app">', 1)
+    head, body = web_html.split('<div class="app">', 1)
     web = ('<!doctype html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n'
            '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
            '<meta name="theme-color" content="#B41B16">\n'
@@ -66,7 +75,7 @@ def main():
            + head + '</head>\n<body>\n<div class="app">' + body + '\n</body>\n</html>\n')
     (ROOT / 'public').mkdir(exist_ok=True)
     (ROOT / 'public' / 'index.html').write_text(web, encoding='utf8')
-    print(f'dist/index.html ditulis ({out.stat().st_size // 1024} KB, {len(matches)} laga)')
+    print(f'dist/index.html ditulis ({out.stat().st_size // 1024} KB, {len(matches)} laga); login online: {"aktif" if sb_on else "belum diatur"}')
 
 
 if __name__ == '__main__':

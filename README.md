@@ -34,6 +34,12 @@ python3 scripts/prep_players.py   # hanya jika roster, nama, atau foto berubah
 python3 scripts/build.py
 ```
 
+## Login & peringkat (Supabase)
+
+Login (Google atau tautan email), susunan tersimpan online, riwayat per laga, dan tab Peringkat aktif setelah
+`data/supabase.json` diisi Project URL dan anon key. Skema database ada di `supabase/schema.sql`.
+Langkah lengkap: [docs/SETUP-LOGIN.md](docs/SETUP-LOGIN.md).
+
 ## Statistik otomatis dari ileague.id
 
 Robot `scripts/update_stats.py` berjalan otomatis lewat GitHub Actions (`.github/workflows/update-stats.yml`) tiap jam pukul 16.17–06.17 WIB. Robot hanya menghubungi ileague.id bila ada laga Deltras dalam 3 hari terakhir yang skor atau statistiknya belum tercatat.
