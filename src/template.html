@@ -1,4 +1,4 @@
-<title>Tata Tim Deltras</title>
+<title>Starting XI Deltras</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -419,7 +419,7 @@ var MATCHES = __MATCHES__;
 /* jadwal: {tanggal, jam (null bila selesai), kandang, tamu, skor_kandang, skor_tamu, stadion} */
 var FX = __FIXTURES__;
 var TEAMS = __TEAMS__;
-/* ---------- Rating Tata Tim -> poin (mulai laga vs Persela) ----------
+/* ---------- Rating Starting XI -> poin (mulai laga vs Persela) ----------
    Rating 3,0-10,0 dihitung dari statistik laga; kartu TIDAK masuk rating, dikurangkan langsung dari poin.
    Kunci statistik: m menit, g gol, a assist, sv penyelamatan, yc kuning, rc merah, og gol bunuh diri, gc kebobolan,
    pa umpan, cc peluang, sot/sof tembakan tepat/melenceng, dr dribel, tk tekel, bl blok, ic intersep, cl sapuan,
@@ -772,7 +772,7 @@ function openHist(date){
         return '<div class="mc"><span class="mph">'+picInner(p)+'</span>'+(snap.cap===id?'<span class="cap">C</span>':'')+'<b>'+esc(p.short)+'</b>'+(v!=null?'<em>'+v+'</em>':'')+(rt!=null?'<small>R '+nf.format(rt)+'</small>':'')+'</div>'; }).join('')+'</div>'; }).join('')+'</div>';
     var bn=snap.bench.filter(function(x){return x!=null;});
     if(bn.length) h+='<span class="lab">Cadangan</span><div class="mbench">'+bn.map(function(id){ var p=byId.get(id); return '<span>'+esc(p.short)+(mt?'<i>'+playerMatchPts(id,mt)+'</i>':'')+'</span>'; }).join('')+'</div>';
-    if(!mt) h+='<p>Statistik laga ini belum dimasukkan, jadi poin belum dihitung.</p>'; else h+='<p>Poin dihitung dari Rating Tata Tim (bukan rating resmi): rating pemain di atas 6,0 menambah poin, di bawahnya mengurangi. Kartu kuning −1, kartu merah −3. Poin kapten dikali 2.</p>';
+    if(!mt) h+='<p>Statistik laga ini belum dimasukkan, jadi poin belum dihitung.</p>'; else h+='<p>Poin dihitung dari Rating Starting XI (bukan rating resmi): rating pemain di atas 6,0 menambah poin, di bawahnya mengurangi. Kartu kuning −1, kartu merah −3. Poin kapten dikali 2.</p>';
   } else {
     h+='<div class="hempty"><b>Kamu belum ikut di laga ini</b><p>Susunanmu tercatat otomatis saat deadline, 2 jam sebelum kick-off. Mulai laga berikutnya, susunan dan poinmu akan muncul di sini.</p></div>';
   }
@@ -1067,7 +1067,7 @@ async function exportImage(){
   });
   /* kaki */
   g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#8B8B94'; g.font='500 21px '+INTER;
-  g.fillText('Tata Tim Deltras  ·  Seputar Deltras  ·  #Identitasedarjo',W/2,H-36);
+  g.fillText('Starting XI Deltras  ·  Seputar Deltras  ·  #Identitasedarjo',W/2,H-36);
   var url=c.toDataURL('image/png');
   var dl=null; try{ dl=(window.claude&&window.claude.use)?await window.claude.use('downloads'):null; }catch(e){ dl=null; }
   var web=!window.claude, fname='susunan-deltras-'+S.rows.join('-')+'.png';

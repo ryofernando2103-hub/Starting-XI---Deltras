@@ -29,7 +29,7 @@ BASE = 'https://www.ileague.id'
 CLUB_URL = BASE + '/clubs/single/PEGADAIAN_CHAMPIONSHIP_2026-27/DELTRAS_FC'
 START_DATE = '2026-11-21'          # poin dihitung mulai laga ini
 WIB = dt.timezone(dt.timedelta(hours=7))
-UA = 'Mozilla/5.0 (compatible; TataTimDeltras/1.0)'
+UA = 'Mozilla/5.0 (compatible; StartingXIDeltras/1.0)'
 
 # Nama tim di ileague -> kunci di data/teams.json
 TEAM_KEY = {
@@ -240,7 +240,7 @@ def floor_half(x):
 
 
 def rating_of(pos, s, ga, res):
-    """Rating Tata Tim 3,0-10,0. Sama persis dengan ratingOf() di src/template.html."""
+    """Rating Starting XI 3,0-10,0. Sama persis dengan ratingOf() di src/template.html."""
     m = s.get('m', 0)
     if not m:
         return None
@@ -284,7 +284,7 @@ def sb_headers(key):
     """Kunci baru (sb_secret_...) bukan JWT: kirim hanya lewat 'apikey'. Kunci lama (JWT) juga lewat Authorization."""
     # Supabase menolak kunci rahasia bila User-Agent tampak seperti browser (Mozilla/...), jadi pakai identitas robot.
     h = {'apikey': key, 'Content-Type': 'application/json',
-         'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': 'tata-tim-deltras-robot/1.0'}
+         'Prefer': 'resolution=merge-duplicates,return=minimal', 'User-Agent': 'starting-xi-deltras-robot/1.0'}
     if key.count('.') == 2:   # bentuk JWT, mis. service_role lama
         h['Authorization'] = f'Bearer {key}'
     return h

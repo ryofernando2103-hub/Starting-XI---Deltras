@@ -21,7 +21,7 @@ fungsi peringkat, dan jadwal otomatis (pg_cron, tiap 5 menit) yang mencatat susu
 
 ## 4. Login Google
 1. https://console.cloud.google.com → buat project → **APIs & Services → OAuth consent screen**: tipe *External*, isi nama aplikasi
-   "Tata Tim Deltras" dan email kontak, lalu **Publish app**.
+   "Starting XI Deltras" dan email kontak, lalu **Publish app**.
 2. **Credentials → Create credentials → OAuth client ID** → tipe *Web application*.
    **Authorized redirect URI**: `https://<ID-PROYEK>.supabase.co/auth/v1/callback`
    (alamat persisnya tertera di Supabase: **Authentication → Providers → Google**).

@@ -1,6 +1,6 @@
-# Rencana V2: Tata Tim Deltras Online
+# Rencana V2: Starting XI Deltras Online
 
-**Tujuan:** siapa pun bisa membuka Tata Tim Deltras dari HP, masuk dengan akun Google atau email, menyimpan susunan tim secara online, mengumpulkan poin tiap laga Deltras, dan bersaing di papan peringkat.
+**Tujuan:** siapa pun bisa membuka Starting XI Deltras dari HP, masuk dengan akun Google atau email, menyimpan susunan tim secara online, mengumpulkan poin tiap laga Deltras, dan bersaing di papan peringkat.
 
 Tampilan V1 (desain merah-hitam, lapangan gaya FPL, kartu pemain, gambar share 2:3) **dipakai ulang**. Yang berubah adalah apa yang ada di belakangnya.
 
@@ -10,7 +10,7 @@ Tampilan V1 (desain merah-hitam, lapangan gaya FPL, kartu pemain, gambar share 2
 
 | | V1 (sekarang) | V2 |
 |---|---|---|
-| Akses | Tautan artifact claude.ai | Website sendiri, contoh `tatatim.seputardeltras.com` |
+| Akses | Tautan artifact claude.ai | Website sendiri, contoh `startingxi.seputardeltras.com` |
 | Penyimpanan susunan | Browser masing-masing | Akun pengguna (database online) |
 | Poin | Poin musim dijumlah, berlaku untuk susunan apa pun | Poin **per pekan**, hanya dari susunan yang dikunci sebelum kick-off |
 | Peringkat | Tidak ada | Peringkat global, per pekan, dan liga mini |

@@ -1,4 +1,4 @@
-# Tata Tim Deltras
+# Starting XI Deltras
 
 Website untuk menyusun starting XI **Deltras FC** bergaya Fantasy Premier League, dibuat untuk **Seputar Deltras**. Pengguna memilih formasi, menempatkan 11 pemain dan 7 cadangan, menunjuk kapten, lalu membagikan susunannya sebagai gambar PNG.
 
@@ -111,7 +111,7 @@ Kunci statistik per pemain:
 | `ps` / `pm` | penalti diselamatkan / gagal | `rb` | rebut bola |
 | | | `fl` / `fd` | pelanggaran dibuat / diterima |
 
-## Sistem poin: Rating Tata Tim
+## Sistem poin: Rating Starting XI
 
 Rincian lengkap ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md). Ringkasnya:
 

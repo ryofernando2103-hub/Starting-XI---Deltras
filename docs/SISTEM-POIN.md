@@ -1,7 +1,7 @@
-# Sistem poin: Rating Tata Tim
+# Sistem poin: Rating Starting XI
 
 ileague.id tidak menyediakan rating pemain, jadi **rating dihitung sendiri dari statistik laga**.
-Ini rating buatan Tata Tim, bukan rating resmi. Berlaku **mulai laga Deltras vs Persela (21 November 2026)**.
+Ini rating buatan Starting XI, bukan rating resmi. Berlaku **mulai laga Deltras vs Persela (21 November 2026)**.
 
 ## 1. Rating pemain (3,0 sampai 10,0)
 

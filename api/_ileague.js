@@ -3,7 +3,7 @@
 
 const BASE = 'https://www.ileague.id';
 const CLUB_URL = BASE + '/clubs/single/PEGADAIAN_CHAMPIONSHIP_2026-27/DELTRAS_FC';
-const UA = 'Mozilla/5.0 (compatible; TataTimDeltras-live/1.0)';
+const UA = 'Mozilla/5.0 (compatible; StartingXIDeltras-live/1.0)';
 
 const clean = (s) => (s || '')
   .replace(/<[^>]*>/g, ' ')

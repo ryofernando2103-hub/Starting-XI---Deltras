@@ -1,5 +1,5 @@
 -- =====================================================================
--- Tata Tim Deltras: skema database Supabase
+-- Starting XI Deltras: skema database Supabase
 -- Jalankan sekali di Supabase: SQL Editor -> New query -> tempel semua -> Run.
 -- Aman dijalankan ulang (idempotent).
 -- =====================================================================
