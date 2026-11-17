@@ -118,6 +118,17 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 /* chip pemain (dipakai di lapangan & cadangan) */
 .pc{position:relative;display:grid;justify-items:center;gap:5px;width:100%;cursor:pointer;transition:transform .16s var(--ease);-webkit-tap-highlight-color:transparent}
 .pc:active{transform:scale(.94)}
+.card[data-z]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.card.dragsrc{opacity:.3}
+.card.dropt .av{outline:3px solid var(--accent);outline-offset:3px}
+.pitch .card.dropt .av{outline-color:#fff}
+.dragghost{position:fixed;left:0;top:0;z-index:60;pointer-events:none;width:84px;display:grid;justify-items:center;gap:5px;
+  transform:translate(-50%,-62%) scale(1.12);filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
+.dragghost .av{width:var(--av,56px);height:var(--av,56px);border-radius:50%;overflow:hidden;background:#EEF0F2;border:2.5px solid #fff;display:grid;place-items:center}
+.dragghost .av img{width:100%;height:100%;object-fit:cover;object-position:50% 6%}
+.dragghost .ini{font:800 20px var(--num);color:#141416}
+.dragghost .nm{max-width:100%;padding:3px 8px;border-radius:999px;background:#141416;color:#fff;font:600 11.5px/1.25 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.dnd{cursor:grabbing}
 .av{width:var(--av,12.5cqw);height:var(--av,12.5cqw);border-radius:50%;overflow:hidden;background:#EEF0F2;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.18);display:grid;place-items:center}
 .av img{width:100%;height:100%;object-fit:cover;object-position:50% 6%;display:block;pointer-events:none}
 .av .ini{font:800 calc(var(--av,12.5cqw)*.38) var(--num);color:#141416}
@@ -538,8 +549,9 @@ function loc(id){
 
 /* ---------- mutations ---------- */
 function tidy(){
-  if(S.cap!=null&&!loc(S.cap)) S.cap=null;
-  if(S.vice!=null&&!loc(S.vice)) S.vice=null;
+  var lc=S.cap!=null?loc(S.cap):null, lv=S.vice!=null?loc(S.vice):null;
+  if(S.cap!=null&&(!lc||lc.z!=='xi')) S.cap=null;
+  if(S.vice!=null&&(!lv||lv.z!=='xi')) S.vice=null;
   if(S.vice!=null&&S.vice===S.cap) S.vice=null;
 }
 function lockedFx(){ var now=Date.now(); for(var k=0;k<FX.length;k++){ var f=FX[k]; if(now>=deadlineOf(f)&&now<kickoffOf(f)+2*3600e3) return f; } return null; }
@@ -636,10 +648,10 @@ function renderHead(){
   var on=0; S.xi.forEach(function(x){ if(x!=null) on++; }); [].forEach.call(bar.children,function(el,i){ el.classList.toggle('on',i<on); });
   $('#sampleNote').hidden=!S.sample;
   var msg;
-  if(n<11) msg='<b>Kurang '+(11-n)+' pemain.</b> Ketuk kartu kosong untuk memilih.';
+  if(n<11) msg='<b>Kurang '+(11-n)+' pemain.</b> Ketuk kartu kosong untuk memilih. Tahan lalu geser kartu untuk menukar posisi.';
   else if(!xs.some(function(p){return p.pos==='GK';})) msg='<b>Belum ada kiper</b> di starting XI.';
   else if(S.cap==null) msg='<b>XI lengkap.</b> Ketuk seorang pemain untuk menunjuk kapten.';
-  else msg='<b>XI lengkap</b> dan siap dibagikan.';
+  else msg='<b>XI lengkap</b> dan siap dibagikan. Tahan lalu geser kartu untuk menukar dengan pemain lain atau cadangan.';
   $('#hint').innerHTML=msg;
   document.querySelectorAll('.viewtabs button').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.view===view));});
   $('#vMatch').hidden=view!=='match'; $('#vPitch').hidden=view!=='pitch'; $('#vList').hidden=view!=='list'; $('#vRank').hidden=view!=='rank';
@@ -941,6 +953,73 @@ document.addEventListener('keydown',function(e){
 $('#coach').value=S.coach;
 $('#coach').addEventListener('input',function(e){ S.coach=e.target.value.slice(0,28); save(); if(me){ clearTimeout(nameT); nameT=setTimeout(function(){ pushName(S.coach); },1200); } });
 
+/* seret & lepas: tukar pemain antar slot XI dan cadangan */
+(function(){
+  var st=null, HOLD=230, MOVE=7;
+  function cardAt(x,y){ var els=document.elementsFromPoint(x,y); for(var k=0;k<els.length;k++){ var c=els[k].closest&&els[k].closest('.card[data-z]'); if(c) return c; } return null; }
+  function clear(){ document.querySelectorAll('.dropt').forEach(function(e){e.classList.remove('dropt');}); }
+  function cancel(){
+    if(!st) return; clearTimeout(st.timer); cancelAnimationFrame(st.raf);
+    if(st.ghost) st.ghost.remove(); if(st.src) st.src.classList.remove('dragsrc'); clear(); document.body.classList.remove('dnd'); st=null;
+  }
+  function start(){
+    if(!st||st.on) return;
+    if(lockedNow()){ lockToast(); st.dead=true; return; }
+    st.on=true; swapFrom=null;
+    var c=st.card, av=c.querySelector('.av'), g=document.createElement('div'); g.className='dragghost';
+    g.style.setProperty('--av',Math.max(48,av.offsetWidth)+'px');
+    g.innerHTML=av.outerHTML+c.querySelector('.nm').outerHTML; document.body.appendChild(g);
+    st.ghost=g; st.src=c; c.classList.add('dragsrc'); document.body.classList.add('dnd');
+    try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+    move(st.x,st.y); tick();
+  }
+  function move(x,y){
+    st.ghost.style.left=x+'px'; st.ghost.style.top=y+'px';
+    var c=cardAt(x,y); clear(); if(c&&c!==st.src) c.classList.add('dropt'); st.over=c&&c!==st.src?c:null;
+  }
+  function tick(){
+    if(!st||!st.on) return;
+    var y=st.y, h=window.innerHeight, v=y<90?-(90-y)/5:y>h-90?(y-(h-90))/5:0;
+    if(v) { window.scrollBy(0,Math.max(-18,Math.min(18,v))); move(st.x,st.y); }
+    st.raf=requestAnimationFrame(tick);
+  }
+  document.addEventListener('pointerdown',function(e){
+    if(e.button>0||st) return;
+    var card=e.target.closest&&e.target.closest('.card[data-z]'); if(!card||card.classList.contains('empty')) return;
+    if(S.free&&card.dataset.z==='xi') return;   // mode geser bebas punya penanganan sendiri
+    var touch=e.pointerType!=='mouse';
+    st={card:card,z:card.dataset.z,i:+card.dataset.i,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,pid:e.pointerId,touch:touch,on:false};
+    if(touch) st.timer=setTimeout(start,HOLD);
+  });
+  document.addEventListener('pointermove',function(e){
+    if(!st||e.pointerId!==st.pid||st.dead) return;
+    st.x=e.clientX; st.y=e.clientY;
+    if(!st.on){
+      var d=Math.hypot(e.clientX-st.sx,e.clientY-st.sy);
+      if(st.touch){ if(d>MOVE) cancel(); }          // geser sebelum tahan = scroll biasa
+      else if(d>MOVE) start();
+      return;
+    }
+    move(e.clientX,e.clientY);
+  });
+  document.addEventListener('touchmove',function(e){ if(st&&st.on) e.preventDefault(); },{passive:false});
+  document.addEventListener('contextmenu',function(e){ if(st&&(st.on||st.touch)&&e.target.closest&&e.target.closest('.card[data-z]')) e.preventDefault(); });
+  function end(e){
+    if(!st||e.pointerId!==st.pid) return;
+    var s=st, over=s.over, on=s.on; cancel();
+    if(!on) return;
+    suppress=true; setTimeout(function(){suppress=false;},0);
+    if(over){
+      var a={z:s.z,i:s.i}, b={z:over.dataset.z,i:+over.dataset.i}, pa=get(a.z,a.i), pb=get(b.z,b.i);
+      mutate(function(){swapSlots(a,b);});
+      var n=byId.get(pa).short; toast(pb==null?n+(b.z==='xi'?' ke starting XI.':' ke cadangan.'):n+' ditukar dengan '+byId.get(pb).short+'.');
+    }
+  }
+  document.addEventListener('pointerup',end);
+  document.addEventListener('pointercancel',function(e){ if(st&&st.on&&e.pointerId===st.pid) return; cancel(); });
+  window.cancelDnd=cancel;
+})();
+
 /* geser bebas */
 (function(){
   var pitch=$('#pitch'), drag=null;
@@ -962,7 +1041,7 @@ $('#coach').addEventListener('input',function(e){ S.coach=e.target.value.slice(0
   function end(e){
     if(!drag||e.pointerId!==drag.pid) return;
     var d=drag; drag=null; pitch.classList.remove('dragging');
-    if(d.moved){ suppress=true; setTimeout(function(){suppress=false;},0); if(lockedNow()){ lockToast(); render(); return; } S.pos[d.i]={x:d.x,y:d.y}; S.sample=false; save(); render(); queueSync(); }
+    if(d.moved){ suppress=true; setTimeout(function(){suppress=false;},0); if(lockedNow()){ lockToast(); render(); return; } var ob=document.elementsFromPoint(e.clientX,e.clientY).map(function(x){return x.closest&&x.closest('.sub .card[data-z]');}).filter(Boolean)[0]; if(ob){ mutate(function(){swapSlots({z:'xi',i:d.i},{z:'b',i:+ob.dataset.i});}); return; } S.pos[d.i]={x:d.x,y:d.y}; S.sample=false; save(); render(); queueSync(); }
   }
   pitch.addEventListener('pointerup',end); pitch.addEventListener('pointercancel',end);
 })();
