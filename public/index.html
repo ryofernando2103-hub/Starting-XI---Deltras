@@ -1304,7 +1304,7 @@ function loadRank(){
   if(!rankData) root.innerHTML='<div class="empty-list">Memuat peringkat…</div>';
   sb.rpc('leaderboard',{lim:100}).then(function(r){
     if(r.error){ root.innerHTML='<div class="empty-list">Peringkat gagal dimuat. Coba lagi nanti.</div>'; return; }
-    rankData=r.data||[]; rankAt=Date.now(); renderRank();
+    rankData=r.data||[]; rankAt=Date.now(); coachCache={}; renderRank();
   });
 }
 var RANK_TOP=20, CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -1328,9 +1328,8 @@ function renderRank(){
 var coachCache={}, coachView=null;
 function loadCoach(uid){
   if(coachCache[uid]) return Promise.resolve(coachCache[uid]);
-  var p=window.__mockCoach?Promise.resolve(window.__mockCoach(uid))
-    :sb.rpc('coach_lineups',{uid:uid}).then(function(r){ if(r.error) throw r.error; return r.data||[]; });
-  return p.then(function(d){ coachCache[uid]=d; return d; });
+  if(!sb) return Promise.reject(new Error('offline'));
+  return sb.rpc('coach_lineups',{uid:uid}).then(function(r){ if(r.error) throw r.error; coachCache[uid]=r.data||[]; return coachCache[uid]; });
 }
 function coachPitch(m){
   var snap=m.data, pts=m.pts||{}, sl=[[snap.xi[0]]], i=1;
