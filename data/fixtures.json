@@ -85,8 +85,8 @@
   "jam": "19:00",
   "kandang": "deltras",
   "tamu": "persela",
-  "skor_kandang": null,
-  "skor_tamu": null,
+  "skor_kandang": 0,
+  "skor_tamu": 3,
   "stadion": "Gelora Delta"
  },
  {
