@@ -71,6 +71,32 @@ h2{margin:0;font:700 19px/1.2 var(--body);letter-spacing:-.01em}
 .rk .p{font:800 24px/1 var(--num);font-variant-numeric:tabular-nums}
 .rk .p small{display:inline;font-size:13px;margin-left:3px}
 .rk.me{margin-inline:-10px;padding-inline:10px;border-radius:16px;background:var(--loss-bg);border-bottom-color:transparent}
+button.rk{width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;border-bottom:1px solid var(--hair);grid-template-columns:34px 38px minmax(0,1fr) auto 14px;cursor:pointer;transition:transform .16s var(--ease)}
+button.rk:active{transform:scale(.98)}
+button.rk.me{background:var(--loss-bg);border-bottom-color:transparent}
+.rk .av2{width:38px;height:38px;border-radius:50%;background:var(--card-2);display:grid;place-items:center;font:800 15px/1 var(--num);color:var(--fg)}
+.rk.top .av2{background:var(--accent);color:#fff}
+.rk .chev{width:14px;height:14px;fill:none;stroke:var(--mute);stroke-width:2.4}
+.rknote{margin:-6px 0 8px;font-size:12.5px;color:var(--mute)}
+.rkgap{display:flex;align-items:center;gap:10px;margin:10px 0 2px;font-size:12px;color:var(--mute)}
+.rkgap::before,.rkgap::after{content:"";flex:1;height:1px;background:var(--hair)}
+/* sheet susunan coach */
+.chead{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px;border-radius:22px;background:var(--accent);color:#fff}
+.chead .rkn{width:52px;height:52px;border-radius:16px;background:rgba(0,0,0,.22);display:grid;place-items:center;font:800 28px/1 var(--num)}
+.chead b{display:block;font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chead small{display:block;margin-top:3px;font-size:12.5px;opacity:.85}
+.chead .tp{text-align:right;font:800 34px/.9 var(--num)}.chead .tp small{font:600 11.5px/1 var(--body);margin-top:4px}
+.mchips{display:flex;align-items:flex-start;gap:6px;overflow-x:auto;margin:0 -2px;padding:2px;scrollbar-width:none}
+.mchips::-webkit-scrollbar{display:none}
+.mchips button{flex:none;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:var(--card-2);font:600 13px/1 var(--body);color:var(--fg);border:0}
+.mchips button img{width:16px;height:16px;object-fit:contain}
+.mchips button[aria-pressed="true"]{background:var(--pill);color:var(--pill-ink)}
+.cbench{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px 4px}
+.cb{display:grid;justify-items:center;gap:4px;min-width:0}
+.cb .mph{width:40px;height:40px;border-color:var(--card);background:var(--card-2)}
+.cb b{max-width:100%;font:600 11px/1.2 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb em{font:800 12px/1 var(--num);font-style:normal;color:var(--mute)}
+.cpriv{margin:0;font-size:12px;color:var(--mute);text-align:center}
 .rcta{display:grid;gap:10px;padding:16px;margin-bottom:14px;border-radius:20px;background:var(--card-2);text-align:center}
 .rcta b{font-size:15px}
 .rcta p{margin:0;font-size:13px;color:var(--mute)}
@@ -942,6 +968,8 @@ document.addEventListener('click',function(e){
   var f=e.target.closest('[data-form]'); if(f){ mutate(function(){setRows(PRESETS.find(function(x){return x[0]===f.dataset.form;})[1]);}); return; }
   var s=e.target.closest('.card[data-z]'); if(s){ tapSlot(s.dataset.z,+s.dataset.i); return; }
   var hb=e.target.closest('[data-hist]'); if(hb){ openHist(hb.dataset.hist); return; }
+  var ck=e.target.closest('[data-coach]'); if(ck){ openCoach(ck.dataset.coach); return; }
+  var cm=e.target.closest('[data-cmatch]'); if(cm&&coachView){ coachView.k=+cm.dataset.cmatch; coachSheet(); return; }
   var r=e.target.closest('.row[data-pid]'); if(r){ tapRow(+r.dataset.pid,!!r.closest('#sheet')); return; }
   if(e.target===$('#sheet')) closeSheet();
 });
@@ -1279,14 +1307,59 @@ function loadRank(){
     rankData=r.data||[]; rankAt=Date.now(); renderRank();
   });
 }
+var RANK_TOP=20, CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+function rankRow(x){
+  var mine=me&&x.user_id===me.id, ini=(x.coach_name||'C').trim().split(/\s+/).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  return '<button class="rk'+(mine?' me':'')+(x.peringkat<=3?' top':'')+'" data-coach="'+esc(x.user_id)+'"><span class="n">'+x.peringkat+'</span><span class="av2">'+esc(ini)+'</span>'+
+    '<div><b>'+esc(x.coach_name)+(mine?' (kamu)':'')+'</b><small>'+x.laga+' laga</small></div><span class="p">'+x.poin+'<small>pts</small></span>'+CHEV+'</button>';
+}
 function renderRank(){
-  var root=$('#rankRoot'), rows=rankData||[];
-  var h='<div class="sechead"><h2>Peringkat</h2><span>'+(rows.length?rows.length+' coach':'')+'</span></div>';
+  var root=$('#rankRoot'), all=rankData||[], rows=all.slice(0,RANK_TOP);
+  var h='<div class="sechead"><h2>Peringkat</h2><span>'+(all.length?'20 besar dari '+all.length+' coach':'')+'</span></div>';
   if(!me) h+='<div class="rcta"><b>Ikut bersaing dengan Deltamania lain</b><p>Masuk supaya susunanmu tercatat tiap laga dan poinmu masuk peringkat.</p><button class="btn primary" data-act="acct">Masuk</button></div>';
-  h+=rows.length?rows.map(function(x){ var mine=me&&x.user_id===me.id;
-      return '<div class="rk'+(mine?' me':'')+'"><span class="n">'+x.peringkat+'</span><div><b>'+esc(x.coach_name)+(mine?' (kamu)':'')+'</b><small>'+x.laga+' laga</small></div><span class="p">'+x.poin+'<small>pts</small></span></div>'; }).join('')
-    :'<div class="empty-list">Peringkat muncul setelah laga pertama dihitung (Deltras vs Persela, 21 November).</div>';
+  if(rows.length){
+    h+='<p class="rknote">Ketuk nama coach untuk melihat susunannya.</p>'+rows.map(rankRow).join('');
+    var mine=me&&all.find(function(x){return x.user_id===me.id;});
+    if(mine&&mine.peringkat>RANK_TOP) h+='<div class="rkgap">Posisimu</div>'+rankRow(mine);
+  } else h+='<div class="empty-list">Peringkat muncul setelah laga pertama dihitung (Deltras vs Persela, 21 November).</div>';
   root.innerHTML=h;
+}
+/* susunan coach di peringkat: hanya laga yang sudah lewat deadline */
+var coachCache={}, coachView=null;
+function loadCoach(uid){
+  if(coachCache[uid]) return Promise.resolve(coachCache[uid]);
+  var p=window.__mockCoach?Promise.resolve(window.__mockCoach(uid))
+    :sb.rpc('coach_lineups',{uid:uid}).then(function(r){ if(r.error) throw r.error; return r.data||[]; });
+  return p.then(function(d){ coachCache[uid]=d; return d; });
+}
+function coachPitch(m){
+  var snap=m.data, pts=m.pts||{}, sl=[[snap.xi[0]]], i=1;
+  snap.rows.forEach(function(n){ sl.push(snap.xi.slice(i,i+n)); i+=n; });
+  var pv=function(id){ var v=pts[id]; return v==null?null:v*(snap.cap===id?2:1); };
+  return '<div class="mpitch">'+sl.map(function(row){ return '<div class="mrow">'+row.map(function(id){
+      if(id==null) return '<div class="mc"><span class="mph"></span><b>–</b></div>';
+      var p=byId.get(id), v=pv(id);
+      return '<div class="mc"><span class="mph">'+picInner(p)+'</span>'+(snap.cap===id?'<span class="cap">C</span>':snap.vice===id?'<span class="cap" style="background:#141416">V</span>':'')+'<b>'+esc(p.short)+'</b>'+(v!=null?'<em>'+v+'</em>':'')+'</div>'; }).join('')+'</div>'; }).join('')+'</div>';
+}
+function coachSheet(){
+  var c=coachView; if(!c) return; var r=c.row, list=c.list, m=list[c.k];
+  var h='<div class="chead"><span class="rkn">'+r.peringkat+'</span><div><b>'+esc(r.coach_name)+'</b><small>Peringkat '+r.peringkat+' · '+r.laga+' laga</small></div><div class="tp">'+r.poin+'<small>total pts</small></div></div>';
+  if(!list.length){ h+='<div class="hempty"><b>Belum ada susunan tercatat</b><p>Susunan coach terlihat setelah deadline laga.</p></div>'; openSheet('coach','Susunan Coach',h); return; }
+  h+='<div><div class="mchips" role="group" aria-label="Pilih laga">'+list.map(function(x,k){ var f=FX.find(function(f){return f.tanggal===x.tanggal;}), opp=f?(f.kandang==='deltras'?f.tamu:f.kandang):null, di=f?dinfo(f):null;
+      return '<button data-cmatch="'+k+'" aria-pressed="'+(k===c.k)+'">'+(opp?'<img src="'+TEAMS[opp].logo+'" alt="">vs '+esc(TEAMS[opp].pendek)+' · '+di.tgl+' '+di.bln.slice(0,3):esc(x.tanggal))+'</button>'; }).join('')+'</div></div>';
+  var snap=m.data, cap=snap.cap!=null?byId.get(snap.cap):null, pts=m.total;
+  h+='<div class="pstats"><div><b>'+(pts==null?'–':pts)+'</b><span class="lab">Poin laga</span></div><div><b>'+snap.rows.join('-')+'</b><span class="lab">Formasi</span></div><div><b class="txt">'+(cap?esc(cap.short):'–')+'</b><span class="lab">Kapten</span></div></div>'+coachPitch(m);
+  var bn=(snap.bench||[]).filter(function(x){return x!=null;});
+  if(bn.length) h+='<span class="lab">Cadangan · '+bn.length+'</span><div class="cbench">'+bn.map(function(id){ var p=byId.get(id), v=(m.pts||{})[id];
+      return '<div class="cb"><span class="mph">'+picInner(p)+'</span><b>'+esc(p.short)+'</b><em>'+(v==null?'–':v+' pts')+'</em></div>'; }).join('')+'</div>';
+  h+='<p class="cpriv">Susunan coach lain hanya terlihat setelah deadline laga. Poin cadangan tidak dihitung.</p>';
+  openSheet('coach','Susunan Coach',h);
+}
+function openCoach(uid){
+  var r=(rankData||[]).find(function(x){return x.user_id===uid;}); if(!r) return;
+  openSheet('coach','Susunan Coach','<div class="empty-list">Memuat susunan…</div>');
+  loadCoach(uid).then(function(list){ list=list.slice().sort(function(a,b){return a.tanggal<b.tanggal?1:-1;}); coachView={row:r,list:list,k:0}; coachSheet(); })
+    .catch(function(){ openSheet('coach','Susunan Coach','<div class="empty-list">Susunan gagal dimuat. Coba lagi nanti.</div>'); });
 }
 function initOnline(){
   if(!CFG||!CFG.url||!CFG.key||!window.supabase) return;
