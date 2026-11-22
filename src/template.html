@@ -463,7 +463,7 @@ var TEAMS = __TEAMS__;
    Parameter res (hasil tim) tidak dipakai; disimpan agar pemanggil lama tetap jalan. */
 function pointsOf(pos,s,ga,res){
   var m=s.m||0; if(!m) return 0;
-  var gc=s.gc!=null?s.gc:(ga||0), t=m>=60?2:1;
+  var gc=s.gc!=null?s.gc:(ga||0), t=0;   // bermain saja tidak menambah poin
   t+=(s.g||0)*(pos==='FW'?4:pos==='MF'?5:6);
   t+=(s.a||0)*3;
   if(m>=60&&gc===0){ if(pos==='GK'||pos==='DF') t+=4; else if(pos==='MF') t+=1; }
@@ -801,7 +801,7 @@ function openHist(date){
         return '<div class="mc"><span class="mph">'+picInner(p)+'</span>'+(snap.cap===id?'<span class="cap">C</span>':'')+'<b>'+esc(p.short)+'</b>'+(v!=null?'<em>'+v+'</em>':'')+'</div>'; }).join('')+'</div>'; }).join('')+'</div>';
     var bn=snap.bench.filter(function(x){return x!=null;});
     if(bn.length) h+='<span class="lab">Cadangan</span><div class="mbench">'+bn.map(function(id){ var p=byId.get(id); return '<span>'+esc(p.short)+(mt?'<i>'+playerMatchPts(id,mt)+'</i>':'')+'</span>'; }).join('')+'</div>';
-    if(!mt) h+='<p>Statistik laga ini belum dimasukkan, jadi poin belum dihitung.</p>'; else h+='<p>Poin mengikuti aturan gaya FPL: menit bermain, gol, assist, clean sheet, penyelamatan, dan penalti menambah poin; kebobolan, kartu, dan gol bunuh diri mengurangi. Poin kapten dikali 2.</p>';
+    if(!mt) h+='<p>Statistik laga ini belum dimasukkan, jadi poin belum dihitung.</p>'; else h+='<p>Poin hanya dari performa: gol, assist, clean sheet, penyelamatan, dan penalti menambah poin; kebobolan, kartu, dan gol bunuh diri mengurangi. Poin kapten dikali 2.</p>';
   } else {
     h+='<div class="hempty"><b>Kamu belum ikut di laga ini</b><p>Susunanmu tercatat otomatis saat deadline, 2 jam sebelum kick-off. Mulai laga berikutnya, susunan dan poinmu akan muncul di sini.</p></div>';
   }

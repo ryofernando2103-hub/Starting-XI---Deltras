@@ -117,7 +117,6 @@ Rincian ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md).
 
 | Kejadian | Poin |
 |---|---|
-| Main < 60 menit / ≥ 60 menit | +1 / +2 |
 | Gol: kiper atau bek / gelandang / penyerang | +6 / +5 / +4 |
 | Assist | +3 |
 | Clean sheet (≥ 60 menit): kiper atau bek / gelandang | +4 / +1 |

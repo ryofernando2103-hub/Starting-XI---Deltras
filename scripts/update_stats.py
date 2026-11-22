@@ -242,7 +242,7 @@ def points_of(pos, s, ga, res=0):
     if not m:
         return 0
     gc = s['gc'] if s.get('gc') is not None else (ga or 0)
-    t = 2 if m >= 60 else 1
+    t = 0   # bermain saja tidak menambah poin
     t += s.get('g', 0) * (4 if pos == 'FW' else 5 if pos == 'MF' else 6)
     t += s.get('a', 0) * 3
     if m >= 60 and gc == 0:
