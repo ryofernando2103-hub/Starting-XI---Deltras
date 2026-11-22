@@ -8,7 +8,7 @@ Yang diperbarui:
 - data/fixtures.json : tanggal, jam, stadion, dan skor tiap laga
 - data/matches.json  : statistik mentah per pemain untuk laga yang sudah selesai,
                        mulai START_DATE (poin dihitung sejak laga vs Persela).
-                       Rating dan poin dihitung dari statistik ini (rating_of / points_of).
+                       Poin dihitung dari statistik ini (points_of).
 Koreksi manual bisa ditulis di data/overrides.json dan akan menimpa hasil robot.
 """
 import argparse
@@ -236,47 +236,23 @@ def needs_network(fixtures, matches, start, force):
 
 
 # ---------- 4. poin & sinkron ke Supabase (untuk peringkat) ----------
-RW_GOAL = {'FW': 1.4, 'MF': 1.6, 'DF': 2.0, 'GK': 2.0}
-RW_CONC = {'GK': .35, 'DF': .2, 'MF': .08, 'FW': 0}
-RW_CS = {'GK': .8, 'DF': .6, 'MF': .25, 'FW': 0}
-RW_CLR = {'GK': .06, 'DF': .06, 'MF': .04, 'FW': .04}
-
-
-def floor_half(x):
-    return math.floor(x + .5)
-
-
-def rating_of(pos, s, ga, res):
-    """Rating Starting XI 3,0-10,0. Sama persis dengan ratingOf() di src/template.html."""
-    m = s.get('m', 0)
-    if not m:
-        return None
-    gc = s['gc'] if s.get('gc') is not None else (ga or 0)
-    d = s.get('g', 0) * RW_GOAL[pos] + s.get('a', 0) * 1
-    d += s.get('cc', 0) * .25 + s.get('sot', 0) * .15 - s.get('sof', 0) * .05
-    d += s.get('dr', 0) * .12 + s.get('tk', 0) * .15 + s.get('ic', 0) * .1 + s.get('bl', 0) * .15
-    d += s.get('cl', 0) * RW_CLR[pos] + s.get('rb', 0) * .05 + min(.6, s.get('pa', 0) * .012)
-    d -= s.get('fl', 0) * .08
-    d += s.get('fd', 0) * .04
-    if pos == 'GK':
-        d += min(2, s.get('sv', 0) * .25)
-    d -= gc * RW_CONC[pos]
-    if m >= 60 and gc == 0:
-        d += RW_CS[pos]
-    d -= s.get('og', 0) * 1.2
-    d += .3 if res > 0 else -.2 if res < 0 else 0
-    d *= min(1, m / 45)
-    return math.floor(min(10, max(3, 6 + d)) * 10 + .5) / 10
-
-
 def points_of(pos, s, ga, res=0):
-    """Poin = poin main + (rating - 6,0) x 2,5, dikurangi kartu. Sama dengan pointsOf() di website."""
+    """Poin gaya FPL. Sama persis dengan pointsOf() di src/template.html. res tidak dipakai."""
     m = s.get('m', 0)
     if not m:
         return 0
-    rt = rating_of(pos, s, ga, res)
-    return ((2 if m >= 60 else 1) + floor_half((rt - 6) * 2.5) - s.get('yc', 0) - s.get('rc', 0) * 3
-            + s.get('ps', 0) * 5 - s.get('pm', 0) * 2)
+    gc = s['gc'] if s.get('gc') is not None else (ga or 0)
+    t = 2 if m >= 60 else 1
+    t += s.get('g', 0) * (4 if pos == 'FW' else 5 if pos == 'MF' else 6)
+    t += s.get('a', 0) * 3
+    if m >= 60 and gc == 0:
+        t += 4 if pos in ('GK', 'DF') else 1 if pos == 'MF' else 0
+    if pos in ('GK', 'DF'):
+        t -= gc // 2
+    if pos == 'GK':
+        t += s.get('sv', 0) // 3
+    t += s.get('ps', 0) * 5 - s.get('pm', 0) * 2 - s.get('yc', 0) - s.get('rc', 0) * 3 - s.get('og', 0) * 2
+    return t
 
 
 def result_of(fixtures, date):
@@ -410,9 +386,8 @@ def main():
         print(f"\n== {e['tanggal']} (kebobolan {e['kebobolan']}, hasil {'menang' if res > 0 else 'kalah' if res < 0 else 'seri'}) ==")
         for num, row in sorted(e['pemain'].items(), key=lambda x: int(x[0])):
             pl = pos_of.get(int(num))
-            rt = rating_of(pl['pos'], row, e['kebobolan'], res) if pl else None
             pt = points_of(pl['pos'], row, e['kebobolan'], res) if pl else None
-            print(f"  #{num:>2} {pl['short'] if pl else '?':<11} rating {rt}  poin {pt}  {row}")
+            print(f"  #{num:>2} {pl['short'] if pl else '?':<11} poin {pt}  {row}")
 
     if args.dry_run:
         print('\n[dry-run] tidak ada file yang ditulis. Jadwal berubah:', changed_fx)

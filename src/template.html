@@ -457,32 +457,20 @@ var MATCHES = __MATCHES__;
 /* jadwal: {tanggal, jam (null bila selesai), kandang, tamu, skor_kandang, skor_tamu, stadion} */
 var FX = __FIXTURES__;
 var TEAMS = __TEAMS__;
-/* ---------- Rating Starting XI -> poin (mulai laga vs Persela) ----------
-   Rating 3,0-10,0 dihitung dari statistik laga; kartu TIDAK masuk rating, dikurangkan langsung dari poin.
-   Kunci statistik: m menit, g gol, a assist, sv penyelamatan, yc kuning, rc merah, og gol bunuh diri, gc kebobolan,
-   pa umpan, cc peluang, sot/sof tembakan tepat/melenceng, dr dribel, tk tekel, bl blok, ic intersep, cl sapuan,
-   rb rebut bola, fl pelanggaran, fd dilanggar, ps penalti diselamatkan, pm penalti gagal. */
-var RW={goal:{FW:1.4,MF:1.6,DF:2.0,GK:2.0},conc:{GK:.35,DF:.2,MF:.08,FW:0},cs:{GK:.8,DF:.6,MF:.25,FW:0},clr:{GK:.06,DF:.06,MF:.04,FW:.04}};
-function ratingOf(pos,s,ga,res){
-  var m=s.m||0; if(!m) return null;
-  var gc=s.gc!=null?s.gc:(ga||0), d=0;
-  d+=(s.g||0)*RW.goal[pos]+(s.a||0)*1;
-  d+=(s.cc||0)*.25+(s.sot||0)*.15-(s.sof||0)*.05;
-  d+=(s.dr||0)*.12+(s.tk||0)*.15+(s.ic||0)*.1+(s.bl||0)*.15;
-  d+=(s.cl||0)*RW.clr[pos]+(s.rb||0)*.05+Math.min(.6,(s.pa||0)*.012);
-  d-=(s.fl||0)*.08; d+=(s.fd||0)*.04;
-  if(pos==='GK') d+=Math.min(2,(s.sv||0)*.25);
-  d-=gc*RW.conc[pos];
-  if(m>=60&&gc===0) d+=RW.cs[pos];
-  d-=(s.og||0)*1.2;
-  d+=res>0?.3:res<0?-.2:0;
-  d*=Math.min(1,m/45);
-  return Math.floor(Math.min(10,Math.max(3,6+d))*10+.5)/10;
-}
+/* ---------- Poin pemain per laga (aturan gaya FPL) ----------
+   Kunci statistik: m menit, g gol, a assist, gc kebobolan saat di lapangan, sv penyelamatan,
+   ps penalti diselamatkan, pm penalti gagal, yc kartu kuning, rc kartu merah, og gol bunuh diri.
+   Parameter res (hasil tim) tidak dipakai; disimpan agar pemanggil lama tetap jalan. */
 function pointsOf(pos,s,ga,res){
   var m=s.m||0; if(!m) return 0;
-  var rt=ratingOf(pos,s,ga,res);
-  return (m>=60?2:1)+Math.floor((rt-6)*2.5+.5)-(s.yc||0)-(s.rc||0)*3+(s.ps||0)*5-(s.pm||0)*2;
+  var gc=s.gc!=null?s.gc:(ga||0), t=m>=60?2:1;
+  t+=(s.g||0)*(pos==='FW'?4:pos==='MF'?5:6);
+  t+=(s.a||0)*3;
+  if(m>=60&&gc===0){ if(pos==='GK'||pos==='DF') t+=4; else if(pos==='MF') t+=1; }
+  if(pos==='GK'||pos==='DF') t-=Math.floor(gc/2);
+  if(pos==='GK') t+=Math.floor((s.sv||0)/3);
+  t+=(s.ps||0)*5-(s.pm||0)*2-(s.yc||0)-(s.rc||0)*3-(s.og||0)*2;
+  return t;
 }
 var TOP=9, ROWH=29.5, BOT=3;
 var $ = function(s){return document.querySelector(s);};
@@ -522,7 +510,6 @@ MATCHES.forEach(function(mt){ var pl=mt.pemain||{}; Object.keys(pl).forEach(func
 /* poin per laga dari susunan yang tercatat saat deadline */
 function statsFor(date){ for(var k=0;k<MATCHES.length;k++) if(MATCHES[k].tanggal===date) return MATCHES[k]; return null; }
 function playerMatchPts(id,mt){ var p=byId.get(id), st=mt&&mt.pemain&&mt.pemain[id]; return p&&st?pointsOf(p.pos,st,mt.kebobolan,resFor(mt.tanggal)):0; }
-function playerRating(id,mt){ var p=byId.get(id), st=mt&&mt.pemain&&mt.pemain[id]; return p&&st?ratingOf(p.pos,st,mt.kebobolan,resFor(mt.tanggal)):null; }
 function snapPoints(snap,date){ var mt=statsFor(date); if(!mt) return null; return snap.xi.reduce(function(a,id){ return id==null?a:a+playerMatchPts(id,mt)*(snap.cap===id?2:1); },0); }
 function totalPoints(){ var t=0,n=0; Object.keys(S.hist).forEach(function(d){ var v=snapPoints(S.hist[d],d); if(v!=null){ t+=v; n++; } }); return {t:t,n:n}; }
 function teamPoints(){ return totalPoints().t; }
@@ -810,11 +797,11 @@ function openHist(date){
     h+='<div class="pstats"><div><b>'+(pts==null?'–':pts)+'</b><span class="lab">Poin kamu</span></div><div><b>'+snap.rows.join('-')+'</b><span class="lab">Formasi</span></div><div><b class="txt">'+(cap?esc(cap.short):'–')+'</b><span class="lab">Kapten</span></div></div>'+
       '<div class="mpitch">'+sl.map(function(row){ return '<div class="mrow">'+row.map(function(id){
         if(id==null) return '<div class="mc"><span class="mph"></span><b>–</b></div>';
-        var p=byId.get(id), v=mt?playerMatchPts(id,mt)*(snap.cap===id?2:1):null, rt=mt?playerRating(id,mt):null;
-        return '<div class="mc"><span class="mph">'+picInner(p)+'</span>'+(snap.cap===id?'<span class="cap">C</span>':'')+'<b>'+esc(p.short)+'</b>'+(v!=null?'<em>'+v+'</em>':'')+(rt!=null?'<small>R '+nf.format(rt)+'</small>':'')+'</div>'; }).join('')+'</div>'; }).join('')+'</div>';
+        var p=byId.get(id), v=mt?playerMatchPts(id,mt)*(snap.cap===id?2:1):null;
+        return '<div class="mc"><span class="mph">'+picInner(p)+'</span>'+(snap.cap===id?'<span class="cap">C</span>':'')+'<b>'+esc(p.short)+'</b>'+(v!=null?'<em>'+v+'</em>':'')+'</div>'; }).join('')+'</div>'; }).join('')+'</div>';
     var bn=snap.bench.filter(function(x){return x!=null;});
     if(bn.length) h+='<span class="lab">Cadangan</span><div class="mbench">'+bn.map(function(id){ var p=byId.get(id); return '<span>'+esc(p.short)+(mt?'<i>'+playerMatchPts(id,mt)+'</i>':'')+'</span>'; }).join('')+'</div>';
-    if(!mt) h+='<p>Statistik laga ini belum dimasukkan, jadi poin belum dihitung.</p>'; else h+='<p>Poin dihitung dari Rating Starting XI (bukan rating resmi): rating pemain di atas 6,0 menambah poin, di bawahnya mengurangi. Kartu kuning −1, kartu merah −3. Poin kapten dikali 2.</p>';
+    if(!mt) h+='<p>Statistik laga ini belum dimasukkan, jadi poin belum dihitung.</p>'; else h+='<p>Poin mengikuti aturan gaya FPL: menit bermain, gol, assist, clean sheet, penyelamatan, dan penalti menambah poin; kebobolan, kartu, dan gol bunuh diri mengurangi. Poin kapten dikali 2.</p>';
   } else {
     h+='<div class="hempty"><b>Kamu belum ikut di laga ini</b><p>Susunanmu tercatat otomatis saat deadline, 2 jam sebelum kick-off. Mulai laga berikutnya, susunan dan poinmu akan muncul di sini.</p></div>';
   }

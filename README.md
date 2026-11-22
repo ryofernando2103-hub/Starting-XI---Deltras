@@ -111,16 +111,26 @@ Kunci statistik per pemain:
 | `ps` / `pm` | penalti diselamatkan / gagal | `rb` | rebut bola |
 | | | `fl` / `fd` | pelanggaran dibuat / diterima |
 
-## Sistem poin: Rating Starting XI
+## Sistem poin (gaya FPL)
 
-Rincian lengkap ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md). Ringkasnya:
+Rincian ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md).
 
-1. **Rating pemain** (3,0–10,0) dihitung dari statistik laga, mulai dari 6,0.
-2. **Poin** = poin main (+1 jika <60 menit, +2 jika ≥60 menit) + (rating − 6,0) × 2,5 dibulatkan, dikurangi **kartu kuning −1** dan **kartu merah −3**, ditambah penalti diselamatkan +5 dan dikurangi penalti gagal −2.
-3. **Poin tim** satu laga = jumlah poin 11 pemain starting XI yang tercatat saat deadline, poin **kapten ×2**. Cadangan tidak dihitung.
-4. Dihitung **mulai laga Deltras vs Persela (21 November 2026)**. Laga sebelumnya hanya tampil sebagai riwayat skor.
+| Kejadian | Poin |
+|---|---|
+| Main < 60 menit / ≥ 60 menit | +1 / +2 |
+| Gol: kiper atau bek / gelandang / penyerang | +6 / +5 / +4 |
+| Assist | +3 |
+| Clean sheet (≥ 60 menit): kiper atau bek / gelandang | +4 / +1 |
+| Tiap 3 penyelamatan (kiper) | +1 |
+| Penalti diselamatkan | +5 |
+| Tiap 2 kebobolan (kiper atau bek) | −1 |
+| Penalti gagal | −2 |
+| Kartu kuning / merah | −1 / −3 |
+| Gol bunuh diri | −2 |
 
-Rumus ada di dua tempat yang harus selalu sama: `ratingOf`/`pointsOf` di `src/template.html` (tampilan) dan `rating_of`/`points_of` di `scripts/update_stats.py` (peringkat di database). Ubah keduanya sekaligus.
+**Poin tim** satu laga = jumlah poin 11 pemain starting XI yang tercatat saat deadline, poin **kapten ×2**. Cadangan tidak dihitung. Dihitung **mulai laga Deltras vs Persela (21 November 2026)**, termasuk laga I.League Cup.
+
+Rumus ada di dua tempat yang harus selalu sama: `pointsOf` di `src/template.html` (tampilan) dan `points_of` di `scripts/update_stats.py` (peringkat di database). Ubah keduanya sekaligus.
 
 ## Kunci dan simpan susunan
 

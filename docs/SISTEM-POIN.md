@@ -1,76 +1,41 @@
-# Sistem poin: Rating Starting XI
+# Sistem poin Starting XI Deltras
 
-ileague.id tidak menyediakan rating pemain, jadi **rating dihitung sendiri dari statistik laga**.
-Ini rating buatan Starting XI, bukan rating resmi. Berlaku **mulai laga Deltras vs Persela (21 November 2026)**.
+Aturan poin mengikuti gaya Fantasy Premier League (FPL). Berlaku **mulai laga Deltras vs Persela (21 November 2026)**, termasuk laga I.League Cup.
 
-## 1. Rating pemain (3,0 sampai 10,0)
+## Poin pemain per laga
 
-Mulai dari **6,0**, lalu ditambah atau dikurangi:
-
-| Kejadian | Bobot |
+| Kejadian | Poin |
 |---|---|
-| Gol | +1,4 (FW), +1,6 (MF), +2,0 (DF dan GK) |
-| Assist | +1,0 |
-| Peluang tercipta | +0,25 |
-| Tembakan tepat sasaran / melenceng | +0,15 / −0,05 |
-| Dribel sukses | +0,12 |
-| Tekel | +0,15 |
-| Blok | +0,15 |
-| Intersep | +0,10 |
-| Sapuan | +0,06 (GK, DF), +0,04 (lainnya) |
-| Rebut bola | +0,05 |
-| Umpan | +0,012 tiap umpan, maksimal +0,6 |
-| Pelanggaran dibuat / diterima | −0,08 / +0,04 |
-| Penyelamatan kiper | +0,25 tiap penyelamatan, maksimal +2,0 |
-| Kebobolan saat pemain di lapangan | −0,35 (GK), −0,20 (DF), −0,08 (MF) |
-| Clean sheet (main ≥ 60 menit) | +0,8 (GK), +0,6 (DF), +0,25 (MF) |
-| Gol bunuh diri | −1,2 |
-| Hasil tim: menang / seri / kalah | +0,3 / 0 / −0,2 |
+| Main < 60 menit / ≥ 60 menit | +1 / +2 |
+| Gol: kiper atau bek / gelandang / penyerang | +6 / +5 / +4 |
+| Assist | +3 |
+| Clean sheet (≥ 60 menit): kiper atau bek / gelandang | +4 / +1 |
+| Tiap 3 penyelamatan (kiper) | +1 |
+| Penalti diselamatkan | +5 |
+| Tiap 2 kebobolan (kiper atau bek) | −1 |
+| Penalti gagal | −2 |
+| Kartu kuning / merah | −1 / −3 |
+| Gol bunuh diri | −2 |
 
-Pemain yang bermain kurang dari 45 menit: selisih dari 6,0 dikalikan (menit ÷ 45), sehingga pemain pengganti
-semenit tidak bisa mendapat rating ekstrem. Hasil dibulatkan ke satu desimal.
+- **Kebobolan** dihitung saat pemain berada di lapangan (`gc`). Jika tidak tersedia, memakai total kebobolan tim di laga itu.
+- **Clean sheet** hanya untuk pemain yang bermain minimal 60 menit dan timnya tidak kebobolan selama ia di lapangan.
+- Pemain yang tidak bermain mendapat 0 poin.
 
-**Kartu tidak masuk rating**, supaya tidak terpotong dua kali. Kartu dikurangkan langsung dari poin.
+## Poin coach per laga
 
-## 2. Rating menjadi poin
+- Jumlah poin 11 pemain **starting XI** yang tercatat saat deadline (2 jam sebelum kick-off).
+- Poin **kapten dikali 2**.
+- **Cadangan tidak dihitung.**
+- **Total poin** = jumlah poin semua laga. Peringkat diurutkan dari total poin.
 
-```
-poin = poin main
-     + dibulatkan((rating − 6,0) × 2,5)
-     − kartu kuning × 1
-     − kartu merah  × 3
-     + penalti diselamatkan × 5
-     − penalti gagal × 2
-```
+## Riwayat perubahan
 
-- Poin main: **+1** bila main kurang dari 60 menit, **+2** bila 60 menit atau lebih.
-- Pembulatan: ke atas pada .5 (misalnya 2,5 menjadi 3).
-- Penalti gagal dan diselamatkan tidak ada di ileague.id; isi lewat `data/overrides.json`.
+- 17 Nov 2026: sempat memakai "Rating Starting XI" (rating 3,0–10,0 dari banyak statistik). Hasilnya terlalu besar, misalnya total pemain laga vs Persela 44 poin padahal Deltras kalah 0–3.
+- 22 Nov 2026: dikembalikan ke aturan gaya FPL di atas. Laga vs Persela dihitung ulang dengan aturan ini (total pemain 22 poin).
 
-| Rating | Poin dari rating |
-|---|---|
-| 5,0 | −2 |
-| 6,0 | 0 |
-| 7,0 | +3 |
-| 8,0 | +5 |
-| 9,0 | +8 |
+## Tempat rumus di kode
 
-## 3. Poin tim
+- `pointsOf()` di `src/template.html`: tampilan di website.
+- `points_of()` di `scripts/update_stats.py`: poin yang dikirim robot ke database untuk peringkat.
 
-Poin satu laga = jumlah poin **11 pemain starting XI** yang tercatat saat deadline.
-**Kapten dikali 2.** Cadangan tidak dihitung. Total poin = jumlah poin semua laga.
-
-## 4. Kalibrasi
-
-Diuji pada 48 penampilan pemain Deltras di tiga laga (24 Oktober, 31 Oktober, 7 November 2026):
-rating terendah 5,9, rata-rata 6,8, tertinggi 8,7; poin 0 sampai 9, rata-rata 3,4.
-Bobot masih bisa disesuaikan setelah beberapa laga, misalnya bila kiper terasa dirugikan.
-
-## 5. Di mana rumusnya
-
-Rumus yang sama ditulis di dua tempat dan **harus selalu identik**:
-
-- `ratingOf` dan `pointsOf` di `src/template.html` (menampilkan poin di website)
-- `rating_of` dan `points_of` di `scripts/update_stats.py` (mengisi tabel `player_points` untuk peringkat)
-
-Keduanya telah dibandingkan pada 3.048 kasus dengan selisih nol. Setelah mengubah satu, ubah yang lain dan bandingkan lagi.
+Keduanya harus selalu sama. Setelah mengubah rumus, jalankan robot dengan `--force` (atau tombol *Run workflow* di GitHub Actions) supaya poin di database ikut dihitung ulang.
