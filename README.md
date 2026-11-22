@@ -111,25 +111,24 @@ Kunci statistik per pemain:
 | `ps` / `pm` | penalti diselamatkan / gagal | `rb` | rebut bola |
 | | | `fl` / `fd` | pelanggaran dibuat / diterima |
 
-## Sistem poin (gaya FPL)
+## Sistem poin: tangga Rating Starting XI
 
-Rincian ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md).
+Rincian ada di [docs/SISTEM-POIN.md](docs/SISTEM-POIN.md). Tiap pemain mendapat **Rating Starting XI** (3,0–10,0, bukan rating resmi) dari statistik laga: gol, assist, peluang, tembakan, dribel, tekel, intersep, blok, sapuan, umpan, penyelamatan, kebobolan, clean sheet, hasil tim, dan pelanggaran. Rating lalu diubah menjadi poin:
 
-| Kejadian | Poin |
+| Rating pemain di laga itu | Poin |
 |---|---|
-| Gol: kiper atau bek / gelandang / penyerang | +6 / +5 / +4 |
-| Assist | +3 |
-| Clean sheet (≥ 60 menit): kiper atau bek / gelandang | +4 / +1 |
-| Tiap 3 penyelamatan (kiper) | +1 |
-| Penalti diselamatkan | +5 |
-| Tiap 2 kebobolan (kiper atau bek) | −1 |
-| Penalti gagal | −2 |
-| Kartu kuning / merah | −1 / −3 |
-| Gol bunuh diri | −2 |
+| di bawah 7,0 (bermain) | 1 |
+| 7,0 – 7,9 | 2 |
+| 8,0 – 8,9 | 3 |
+| 9,0 – 10 | 5 |
+| Kartu kuning | tidak mengurangi |
+| Kartu merah | −2 |
+
+Pemain yang tidak bermain mendapat 0. Poin pemain **tidak pernah minus** (paling kecil 0).
 
 **Poin tim** satu laga = jumlah poin 11 pemain starting XI yang tercatat saat deadline, poin **kapten ×2**. Cadangan tidak dihitung. Dihitung **mulai laga Deltras vs Persela (21 November 2026)**, termasuk laga I.League Cup.
 
-Rumus ada di dua tempat yang harus selalu sama: `pointsOf` di `src/template.html` (tampilan) dan `points_of` di `scripts/update_stats.py` (peringkat di database). Ubah keduanya sekaligus.
+Rumus ada di dua tempat yang harus selalu sama: `ratingOf`/`pointsOf` di `src/template.html` (tampilan) dan `rating_of`/`points_of` di `scripts/update_stats.py` (peringkat di database). Ubah keduanya sekaligus.
 
 ## Kunci dan simpan susunan
 
