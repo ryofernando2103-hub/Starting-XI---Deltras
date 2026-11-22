@@ -49,5 +49,11 @@
   "nama": "Persipura Jayapura",
   "logo": "persipura.png",
   "pendek": "Persipura"
+ },
+ "persik": {
+  "nama": "Persik Kediri",
+  "logo": "persik.png",
+  "sumber_logo": "ileague.id",
+  "pendek": "Persik"
  }
 }

@@ -27,6 +27,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 BASE = 'https://www.ileague.id'
 CLUB_URL = BASE + '/clubs/single/PEGADAIAN_CHAMPIONSHIP_2026-27/DELTRAS_FC'
+# Kompetisi yang diikuti Deltras: kunci 'komp' di fixtures.json -> halaman klub di ileague.
+# Laga liga tidak menyimpan 'komp' (dianggap 'liga').
+CLUB_URLS = {
+    'liga': CLUB_URL,
+    'cup': BASE + '/clubs/single/I.LEAGUE_CUP_2026-2027/DELTRAS_FC',
+}
 START_DATE = '2026-11-21'          # poin dihitung mulai laga ini
 WIB = dt.timezone(dt.timedelta(hours=7))
 UA = 'Mozilla/5.0 (compatible; StartingXIDeltras/1.0)'
@@ -36,6 +42,7 @@ TEAM_KEY = {
     'PSBS BIAK': 'psbs', 'DELTRAS FC': 'deltras', 'PS BARITO PUTERA': 'barito', 'RANS NUSANTARA FC': 'rans',
     'PERSIBA BALIKPAPAN': 'persiba', 'PERSELA LAMONGAN': 'persela', 'PERSIS SOLO': 'persis',
     'KENDAL TORNADO FC': 'kendal', 'DE RED FC': 'dered', 'PERSIPURA JAYAPURA': 'persipura',
+    'PERSIK KEDIRI': 'persik',
 }
 MONTHS = {'januari': 1, 'january': 1, 'februari': 2, 'february': 2, 'maret': 3, 'march': 3, 'april': 4,
           'mei': 5, 'may': 5, 'juni': 6, 'june': 6, 'juli': 7, 'july': 7, 'agustus': 8, 'august': 8,
@@ -341,18 +348,40 @@ def main():
         return
 
     print('Mengambil jadwal dari ileague.id ...')
-    remote = parse_fixtures(get(CLUB_URL))
-    by_pair = {(f['kandang'], f['tamu']): f for f in remote}
-    new_fixtures = []
+    # Kunci (kompetisi, kandang, tamu): Persis vs Deltras ada di liga dan di cup, jangan sampai tertukar.
+    by_pair = {}
+    for komp, url in CLUB_URLS.items():
+        try:
+            remote = parse_fixtures(get(url))
+        except Exception as e:  # satu kompetisi gagal dibaca: kompetisi lain tetap jalan
+            print(f'  ! jadwal {komp} gagal dibaca: {e}', file=sys.stderr)
+            continue
+        for r in remote:
+            r['komp'] = komp
+            by_pair[(komp, r['kandang'], r['tamu'])] = r
+    keys = ('tanggal', 'jam', 'kandang', 'tamu', 'skor_kandang', 'skor_tamu', 'stadion')
+    new_fixtures, seen = [], set()
     for f in fixtures:
-        r = by_pair.get((f['kandang'], f['tamu']))
+        key = (f.get('komp', 'liga'), f['kandang'], f['tamu'])
+        r = by_pair.get(key)
+        seen.add(key)
         if not r:
             new_fixtures.append(f)
             continue
-        nf = {k: r[k] for k in ('tanggal', 'jam', 'kandang', 'tamu', 'skor_kandang', 'skor_tamu', 'stadion')}
+        nf = {k: r[k] for k in keys}
         if nf['jam'] is None and f['tanggal'] == nf['tanggal']:
             nf['jam'] = f['jam']   # ileague tidak lagi menampilkan jam setelah laga selesai
+        if r['komp'] != 'liga':
+            nf['komp'] = r['komp']
         new_fixtures.append(nf)
+    for key, r in by_pair.items():   # laga baru di ileague yang belum ada di fixtures.json
+        if key not in seen:
+            nf = {k: r[k] for k in keys}
+            if r['komp'] != 'liga':
+                nf['komp'] = r['komp']
+            print(f"  + laga baru: {nf['tanggal']} {nf['kandang']} vs {nf['tamu']} ({r['komp']})")
+            new_fixtures.append(nf)
+    new_fixtures.sort(key=lambda x: x['tanggal'])
     changed_fx = new_fixtures != fixtures
 
     done = {m['tanggal'] for m in matches}

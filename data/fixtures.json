@@ -90,6 +90,16 @@
   "stadion": "Gelora Delta"
  },
  {
+  "tanggal": "2026-11-25",
+  "jam": "19:00",
+  "kandang": "deltras",
+  "tamu": "persik",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Gelora Delta",
+  "komp": "cup"
+ },
+ {
   "tanggal": "2026-11-28",
   "jam": "19:00",
   "kandang": "persis",
@@ -97,6 +107,16 @@
   "skor_kandang": null,
   "skor_tamu": null,
   "stadion": "Manahan"
+ },
+ {
+  "tanggal": "2026-12-02",
+  "jam": "19:00",
+  "kandang": "persis",
+  "tamu": "deltras",
+  "skor_kandang": null,
+  "skor_tamu": null,
+  "stadion": "Manahan",
+  "komp": "cup"
  },
  {
   "tanggal": "2026-12-06",

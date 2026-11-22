@@ -208,6 +208,7 @@ body.dnd{cursor:grabbing}
 .plate img{width:64%;height:64%;object-fit:contain;display:block}
 .nextcard{text-align:center;display:grid;gap:14px}
 .nhead{display:flex;justify-content:center;align-items:center;gap:8px}
+.cuptag{display:inline-block;vertical-align:1px;margin-left:4px;padding:3px 7px;border-radius:999px;background:#141416;color:#fff;font:700 10.5px/1 var(--body);letter-spacing:.04em;text-transform:uppercase}
 .ha{font:600 12px/1 var(--body);padding:6px 10px;border-radius:999px;background:var(--accent);color:#fff}
 .ha.away{background:var(--pill);color:var(--pill-ink)}
 .vs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;gap:8px}
@@ -715,6 +716,9 @@ function dinfo(f){ var a=f.tanggal.split('-').map(Number), d=new Date(Date.UTC(a
 function jam(f){ return f.jam?f.jam.replace(':','.'):''; }
 function plate(k,size){ var t=TEAMS[k]; return '<span class="plate"'+(size?' style="--ps:'+size+'px"':'')+'><img src="'+t.logo+'" alt="'+esc(t.nama)+'"></span>'; }
 var PIN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+function isCup(f){ return f.komp==='cup'; }
+function fxName(f){ if(isCup(f)) return 'I.League Cup'; var n=0; for(var i=0;i<FX.length;i++){ if(!isCup(FX[i])) n++; if(FX[i]===f) break; } return 'Laga '+n; }
+var CUPTAG='<span class="cuptag">Cup</span>';
 function nextIdx(){ for(var k=0;k<FX.length;k++) if(FX[k].skor_kandang==null) return k; return -1; }
 function resultOf(f){ var us=f.kandang==='deltras'?f.skor_kandang:f.skor_tamu, them=f.kandang==='deltras'?f.skor_tamu:f.skor_kandang; return us>them?['W','Menang']:us<them?['L','Kalah']:['D','Seri']; }
 function cdParts(ms){ ms=Math.max(0,ms); var m=Math.floor(ms/6e4); return [Math.floor(m/1440),Math.floor(m%1440/60),m%60]; }
@@ -768,7 +772,7 @@ function renderMatch(){
   if(k>=0){
     var f=FX[k], lv=liveOf(f), lc=lv?liveCard(f,lv):null, di=dinfo(f), home=f.kandang==='deltras', dl=new Date(deadlineOf(f)), dlTxt=String((dl.getUTCHours()+7)%24).padStart(2,'0')+'.'+String(dl.getUTCMinutes()).padStart(2,'0');
     h+='<div class="panel nextcard'+($('#matchRoot')._init?'':' intro')+'">'+
-      '<div class="nhead"><span class="lab">Laga '+(k+1)+' · '+(lv?(lv.state==='ft'?'Hasil':'Berlangsung'):'Berikutnya')+'</span><span class="ha'+(home?'':' away')+'">'+(home?'Kandang':'Tandang')+'</span></div>'+
+      '<div class="nhead"><span class="lab">'+fxName(f)+' · '+(lv?(lv.state==='ft'?'Hasil':'Berlangsung'):'Berikutnya')+'</span><span class="ha'+(home?'':' away')+'">'+(home?'Kandang':'Tandang')+'</span></div>'+
       '<div class="vs"><div class="team">'+plate(f.kandang)+'<b>'+esc(TEAMS[f.kandang].nama)+'</b></div>'+
       (lv?lc.ko:'<div class="ko"><b>'+jam(f)+'</b><small>WIB</small></div>')+
       '<div class="team">'+plate(f.tamu)+'<b>'+esc(TEAMS[f.tamu].nama)+'</b></div></div>'+
@@ -782,14 +786,14 @@ function renderMatch(){
       h+='<section class="panel"><div class="sechead"><h2>Jadwal</h2><span>'+(FX.length-k-1)+' laga lagi</span></div><div class="fx">'+
         up.map(function(f){ var di=dinfo(f), home=f.kandang==='deltras', opp=home?f.tamu:f.kandang;
           return '<div class="fxrow"><div class="fxd"><b>'+di.tgl+'</b><span>'+di.bln.slice(0,3)+'</span></div>'+plate(opp,40)+
-            '<div class="fxt"><b>vs '+esc(TEAMS[opp].nama)+'</b><small>'+(home?'Kandang':'Tandang')+' · '+di.hari+' · '+esc(f.stadion)+'</small></div><span class="fxk">'+jam(f)+'</span></div>'; }).join('')+
+            '<div class="fxt"><b>vs '+esc(TEAMS[opp].nama)+(isCup(f)?' '+CUPTAG:'')+'</b><small>'+(home?'Kandang':'Tandang')+' · '+di.hari+' · '+esc(f.stadion)+'</small></div><span class="fxk">'+jam(f)+'</span></div>'; }).join('')+
         '</div></section>';
     }
   }
   var past=FX.filter(function(f){return f.skor_kandang!=null;}).reverse();
   h+='<section class="panel"><div class="sechead"><h2>Riwayat</h2><span>'+past.length+' laga</span></div><div class="hist">'+
     past.map(function(f){ var di=dinfo(f), r=resultOf(f), snap=S.hist[f.tanggal], pts=snap?snapPoints(snap,f.tanggal):null;
-      return '<button class="hrow" data-hist="'+f.tanggal+'"><div class="htop"><span>'+di.hari.slice(0,3)+', '+di.tgl+' '+di.bln.slice(0,3)+' '+di.thn+'</span><span class="res '+r[0]+'">'+r[1]+'</span></div>'+
+      return '<button class="hrow" data-hist="'+f.tanggal+'"><div class="htop"><span>'+di.hari.slice(0,3)+', '+di.tgl+' '+di.bln.slice(0,3)+' '+di.thn+(isCup(f)?' · '+CUPTAG:'')+'</span><span class="res '+r[0]+'">'+r[1]+'</span></div>'+
         '<div class="hvs"><span class="ht r"><b>'+esc(TEAMS[f.kandang].pendek)+'</b>'+plate(f.kandang)+'</span><span class="hs">'+f.skor_kandang+'<i>–</i>'+f.skor_tamu+'</span><span class="ht">'+plate(f.tamu)+'<b>'+esc(TEAMS[f.tamu].pendek)+'</b></span></div>'+
         '<div class="hpts"><span>Poin kamu</span>'+(snap?(pts==null?'<em>Menunggu statistik</em>':'<b>'+pts+'<small>pts</small></b>'):'<em>Tidak ikut</em>')+'</div></button>'; }).join('')+
     '</div></section>';
@@ -814,7 +818,7 @@ function openHist(date){
   } else {
     h+='<div class="hempty"><b>Kamu belum ikut di laga ini</b><p>Susunanmu tercatat otomatis saat deadline, 2 jam sebelum kick-off. Mulai laga berikutnya, susunan dan poinmu akan muncul di sini.</p></div>';
   }
-  openSheet('hist','Laga '+(k+1),h);
+  openSheet('hist',fxName(f),h);
 }
 function render(){
   renderMatch(); renderPitch(); renderSubs(); renderHead(); mainList.refresh();
